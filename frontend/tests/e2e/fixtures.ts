@@ -1,40 +1,67 @@
 import { expect, test as base, type Page } from "@playwright/test";
 
-type AllowedResponse = Readonly<{ pathname: string; status: number }>;
+type TrackedExpectation = {
+  path: string;
+  status: number;
+  received: boolean;
+};
 
 export type CleanPage = Page & {
-  allowExpectedResponse(pathname: string, status: number): void;
+  expectResponse(expectation: { path: string; status: number }): void;
+  allowExpectedResponse(path: string, status: number): void;
 };
 
 export const test = base.extend<{ cleanPage: CleanPage }>({
   cleanPage: async ({ page }, completeFixture) => {
-    const allowedResponses: AllowedResponse[] = [];
+    const expectations: TrackedExpectation[] = [];
     const failures: string[] = [];
+
     const cleanPage = Object.assign(page, {
-      allowExpectedResponse(pathname: string, status: number) {
-        allowedResponses.push({ pathname, status });
+      expectResponse({ path, status }: { path: string; status: number }) {
+        expectations.push({ path, status, received: false });
+      },
+      allowExpectedResponse(path: string, status: number) {
+        expectations.push({ path, status, received: false });
       },
     });
 
     page.on("console", (message) => {
       if (message.type() === "error" || message.type() === "warning") {
-        failures.push(`console ${message.type()}: ${message.text()}`);
+        const text = message.text();
+        const isExpectedConsoleError = expectations.some(
+          (exp) => text.includes(exp.path) || (exp.status >= 400 && text.includes(String(exp.status)))
+        );
+        if (!isExpectedConsoleError) {
+          failures.push(`console ${message.type()}: ${text}`);
+        }
       }
     });
     page.on("pageerror", (error) => failures.push(`page error: ${error.message}`));
     page.on("requestfailed", (request) => failures.push(`request failed: ${request.url()}`));
     page.on("response", (response) => {
-      if (response.status() < 400) return;
+      const status = response.status();
+      const url = response.url();
+      const pathname = new URL(url).pathname;
 
-      const pathname = new URL(response.url()).pathname;
-      const allowed = allowedResponses.some(
-        (entry) => entry.pathname === pathname && entry.status === response.status(),
+      const matched = expectations.find(
+        (exp) => exp.path === pathname && exp.status === status,
       );
 
-      if (!allowed) failures.push(`HTTP ${response.status()}: ${response.url()}`);
+      if (matched) {
+        matched.received = true;
+      } else if (status >= 400) {
+        failures.push(`HTTP ${status}: ${url}`);
+      }
     });
 
     await completeFixture(cleanPage);
+
+    for (const exp of expectations) {
+      if (!exp.received) {
+        failures.push(`expected response { path: "${exp.path}", status: ${exp.status} } did not occur`);
+      }
+    }
+
     expect(failures).toEqual([]);
   },
 });

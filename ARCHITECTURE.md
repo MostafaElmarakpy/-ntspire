@@ -174,7 +174,4 @@ without rewriting the main UI.
 
 ## Quality gates
 
-Every phase runs, from `frontend/`, `typecheck`, `lint`, `test`, `build`, and
-`test:e2e`. The Playwright fixture treats console errors/warnings, page errors,
-failed requests, and HTTP errors as failures. A guard test prevents physical
-directional CSS utilities from entering source files.
+Every phase runs, from `frontend/`, `typecheck`, `lint`, `test`, `build`, and `test:e2e`. The Playwright clean-run fixture treats console errors/warnings, page errors, failed requests, and HTTP errors as failures, with the sole exception of per-test declared expectations via `expectResponse({ path, status })` (exact path and exact status, scoped to the test, which fails the test if the declared response does not occur). No wildcard or global allowlists. A guard test prevents physical directional CSS utilities from entering source files.
