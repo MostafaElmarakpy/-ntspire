@@ -63,9 +63,43 @@ npm run test:e2e
 - `bug-fix.md`: real bugs found and fixed this phase only (no fake entries).
 - `feature-add.md` / `refactor.md`: only real entries.
 
+## Mock data content rules
+- Mock Source names must be realistic-but-fictional brand names — never the
+  name of a real, identifiable company, product, or website, and never a
+  real trademarked wordmark. (Spec §61: legal/copyright review of using
+  real-site screenshots must be resolved before any such content is
+  introduced; it has not been resolved yet.)
+- Use names that sound like real products (e.g. "Flowbase," "Nimbus Pay,"
+  "Arcadia Docs") but are not traceable to any actual company. If genuinely
+  unsure whether a chosen name collides with a real one, pick a different
+  name rather than deciding case-by-case.
+- This applies everywhere mock content is generated or referenced: fixture
+  data, generated SVG filenames/content, page titles, attribution text, and
+  test fixtures/assertions.
+
 ## Code quality
 
 Strict TypeScript, no dead code, no duplicated taxonomy/business logic, no magic strings/numbers (use config/constants), no giant components, Server Components by default, Client Components only when needed and as leaf-like as possible. Simple over clever.
+
+## Batch execution mode (optional, controlled)
+When explicitly told to run multiple phases in one session, follow this per phase,
+with no exceptions:
+1. Read the phase prompt fully.
+2. Create/update docs/phase-reports/NN-name.md with the requirement table.
+3. Implement only that phase's scope.
+4. Run the full 5-command gate from frontend/.
+5. Self-audit every requirement ID against real evidence.
+6. Write the phase's final report section in this session's running log.
+7. ONLY IF all five gate commands passed cleanly AND every requirement ID has
+   evidence: move to the next phase in the list and repeat from step 1.
+8. IF ANYTHING fails (a gate command, a missing requirement, an unresolved
+   discrepancy like the test.fail() case): STOP immediately, do not attempt
+   the next phase, and report exactly what failed and why.
+
+Never silently skip a failing step to "keep moving" through the batch. A
+batch run that stops at phase N with a clear failure report is success; a
+batch run that reports "all done" while skipping evidence or gate failures
+is not.
 
 ## Final report format (then STOP and wait)
 
@@ -77,4 +111,4 @@ Strict TypeScript, no dead code, no duplicated taxonomy/business logic, no magic
 6. Not done / deviations / known limitations
 7. Bugs found & fixed (from bug-fix.md)
 8. What the next phase needs from this one
-   Then stop. Do not begin the next phase.
+   Then stop.

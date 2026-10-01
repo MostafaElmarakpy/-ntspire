@@ -7,6 +7,7 @@ under `frontend/` at the repository root. `backend/` is reserved for a future
 ASP.NET Core API and must remain untouched during the frontend phases.
 
 The application MUST NOT depend on:
+
 - ASP.NET Core
 - PostgreSQL
 - EF Core
@@ -62,6 +63,7 @@ ASP.NET Core API
 Server Components are the default.
 
 Client Components are only used when needed for:
+
 - state
 - event handlers
 - browser APIs
@@ -78,6 +80,33 @@ Source → Page / Screen → Section → SectionCrop → Asset
 Section is a screenshot/cropped visual reference.
 
 Section is NOT a React component.
+
+## Phase 02 Domain Mock Layer
+
+The deterministic domain model lives in `frontend/src/types/domain.ts`. The
+relationship is `Source -> Page -> Section -> SectionCrop -> Asset`; crop
+coordinates remain on `SectionCrop`, and both `Asset` and `SectionCrop` carry
+required dimensions. Capture date and attribution are retained on sources and
+sections so reference metadata is available without a backend.
+
+`frontend/src/config/taxonomy.ts` is the only source for section types,
+industries, styles, and filter values. Mock content is described once in
+`frontend/src/mocks/mock-manifest.json`; typed fixtures derive sources, pages,
+sections, crops, tags, categories, and asset metadata from that manifest.
+
+The asset script generates local SVG wireframes only. Each declared page/device
+gets a stacked full-page asset, and each section/device gets a crop asset. The
+same deterministic height table is used by the generator and fixtures, so crop
+coordinates point into the matching page asset and declared dimensions can be
+validated from the SVG files.
+
+Services in `frontend/src/mocks/services.ts` implement the async contracts in
+`frontend/src/types/services.ts`. They call the pure `frontend/src/lib/query-engine.ts`
+for filtering, text search, sorting, pagination, facets, and similarity. UI
+code should import these contracts, never fixture arrays. A future API service
+can replace the mock exports without changing consumers. Development-only
+`mockConfig` supports delay, forced error, and forced empty modes via
+`NEXT_PUBLIC_MOCK_CONFIG` or `?__mock=...`; production ignores both controls.
 
 ## Shared Taxonomy Config
 
@@ -112,6 +141,7 @@ Card width follows the responsive column.
 Image height follows natural aspect ratio.
 
 Never:
+
 - force equal card heights
 - use fixed-height gallery cards
 - use object-cover for normal reference cards
@@ -124,6 +154,7 @@ RTL changes column order, not image content.
 Search logic must be isolated from UI components.
 
 Search supports:
+
 - free text
 - taxonomy detection (against the Shared Taxonomy Config above)
 - Arabic aliases
@@ -146,6 +177,7 @@ Phase 11.
 ## State Management
 
 Prefer:
+
 - URL state
 - local React state
 - localStorage when required

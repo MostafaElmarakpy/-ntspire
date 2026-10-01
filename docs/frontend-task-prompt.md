@@ -1,3 +1,8 @@
+NOTE: This file is kept as background reference only. Actual implementation
+now runs through the phased prompts in docs/prompts/ (00-global-rules.md
+through 12-final-review.md), which take priority over this file for scope
+and execution order.
+
 You are the primary implementation agent for the frontend of this project.
 
 PROJECT NAME: **ntspire**
@@ -387,6 +392,11 @@ Similar Sections =
 Implement this as a plain function over the mock dataset (e.g. `getSimilarSections()`
 in the mock Section service), so it can later be swapped for a real query behind the
 same interface without changing the UI.
+
+Source names must be realistic-but-fictional brand names — never a real,
+identifiable company/product/website name (spec §61 interim rule). Use
+invented names that sound like real products, never names traceable to an
+actual company.
 
 ==================================================
 7. IMAGE STRATEGY

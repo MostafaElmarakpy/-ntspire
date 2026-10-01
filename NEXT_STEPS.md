@@ -16,6 +16,13 @@ The current build is frontend-only and mock-data-only. Do not create or modify
 11. Arabic UI, `ar` locale, RTL layout, aliases, and localized metadata.
 12. Final review, documentation, and handoff.
 
+## Phase 02 handoff
+
+Phase 03 can consume `mockServices` for the design-system shell and later
+gallery work. Use `mockSearchService.search()` for result data and preserve the
+known `Asset`/`SectionCrop` dimensions when reserving image space. The local
+SVG assets are already generated under `frontend/public/mock-assets/`.
+
 ## Deliberately deferred
 
 - Arabic UI, RTL rendering, Arabic aliases, and `/ar` are Phase 11 work. Arabic
@@ -23,3 +30,5 @@ The current build is frontend-only and mock-data-only. Do not create or modify
   English/LTR through Phase 10.
 - Real API, database, authentication, storage, capture, Figma, and analytics
   providers remain outside this mock-only frontend MVP.
+- UI controls and routes for loading/error/empty states consume the existing
+  mock controls in a later phase; Phase 02 only exposes the service behavior.

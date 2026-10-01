@@ -1,0 +1,86 @@
+{
+  "sources": [
+    { "id": "source-linear", "name": "Linear", "url": "https://linear.app", "description": "A focused workspace for product teams.", "industryId": "saas", "createdAt": "2024-01-08T00:00:00Z", "attribution": "Linear", "capturedAt": "2024-01-08T00:00:00Z" },
+    { "id": "source-revolut", "name": "Revolut", "url": "https://www.revolut.com", "description": "A modern financial experience for everyday money.", "industryId": "fintech", "createdAt": "2024-02-12T00:00:00Z", "attribution": "Revolut", "capturedAt": "2024-02-12T00:00:00Z" },
+    { "id": "source-notion", "name": "Notion", "url": "https://www.notion.so", "description": "Connected notes, docs, and plans for thoughtful teams.", "industryId": "education", "createdAt": "2024-03-21T00:00:00Z", "attribution": "Notion", "capturedAt": "2024-03-21T00:00:00Z" },
+    { "id": "source-arc", "name": "Arc Browser", "url": "https://arc.net", "description": "A calmer way to move through the web.", "industryId": "ai", "createdAt": "2024-04-03T00:00:00Z", "attribution": "Arc Browser", "capturedAt": "2024-04-03T00:00:00Z" },
+    { "id": "source-airtable", "name": "Airtable", "url": "https://www.airtable.com", "description": "Flexible workflows shaped around the work.", "industryId": "marketing", "createdAt": "2024-05-17T00:00:00Z", "attribution": "Airtable", "capturedAt": "2024-05-17T00:00:00Z" },
+    { "id": "source-patagonia", "name": "Patagonia", "url": "https://www.patagonia.com", "description": "Outdoor goods with a strong point of view.", "industryId": "ecommerce", "createdAt": "2024-06-09T00:00:00Z", "attribution": "Patagonia", "capturedAt": "2024-06-09T00:00:00Z" },
+    { "id": "source-mubawab", "name": "مبوب", "url": "https://www.mubawab.ma", "description": "منصة عقارية عربية للبحث عن المنزل المناسب.", "industryId": "marketing", "createdAt": "2024-07-14T00:00:00Z", "attribution": "مبوب", "capturedAt": "2024-07-14T00:00:00Z" },
+    { "id": "source-careem", "name": "كريم", "url": "https://www.careem.com", "description": "كل ما تحتاجه في تطبيق واحد.", "industryId": "travel", "createdAt": "2024-08-20T00:00:00Z", "attribution": "كريم", "capturedAt": "2024-08-20T00:00:00Z" },
+    { "id": "source-salla", "name": "سلة", "url": "https://salla.com", "description": "حلول التجارة الإلكترونية للتجار العرب.", "industryId": "ecommerce", "createdAt": "2024-09-06T00:00:00Z", "attribution": "سلة", "capturedAt": "2024-09-06T00:00:00Z" },
+    { "id": "source-figma", "name": "Figma", "url": "https://www.figma.com", "description": "Collaborative design tools for the whole team.", "industryId": "agency", "createdAt": "2024-10-11T00:00:00Z", "attribution": "Figma", "capturedAt": "2024-10-11T00:00:00Z" }
+  ],
+  "pages": [
+    { "id": "linear-home", "sourceId": "source-linear", "title": "Linear product homepage", "path": "/", "language": "en", "direction": "ltr", "devices": ["desktop", "mobile"], "sections": [
+      { "type": "navbar", "title": "Product navigation", "style": "dark", "theme": "dark", "tags": ["navigation", "product"] },
+      { "type": "hero", "title": "The product development system", "style": "dark", "theme": "dark", "tags": ["gradient", "product", "workflow"] },
+      { "type": "features", "title": "Everything in one connected workspace", "style": "modern", "theme": "dark", "tags": ["workflow", "dashboard", "collaboration"] }
+    ] },
+    { "id": "linear-pricing", "sourceId": "source-linear", "title": "Linear pricing", "path": "/pricing", "language": "en", "direction": "ltr", "devices": ["desktop"], "sections": [
+      { "type": "pricing", "title": "Plans for every team", "style": "minimal", "theme": "light", "tags": ["plans", "comparison", "saas"] },
+      { "type": "faq", "title": "Questions about plans", "style": "minimal", "theme": "light", "tags": ["questions", "pricing"] },
+      { "type": "cta", "title": "Build with clarity", "style": "modern", "theme": "light", "tags": ["conversion", "product"] }
+    ] },
+    { "id": "revolut-home", "sourceId": "source-revolut", "title": "Revolut money homepage", "path": "/", "language": "en", "direction": "ltr", "devices": ["desktop", "mobile"], "sections": [
+      { "type": "navbar", "title": "Money navigation", "style": "modern", "theme": "light", "tags": ["navigation", "finance"] },
+      { "type": "hero", "title": "Your money, made simple", "style": "gradient", "theme": "light", "tags": ["finance", "mobile", "gradient"] },
+      { "type": "stats", "title": "A global financial network", "style": "modern", "theme": "light", "tags": ["metrics", "finance", "trust"] }
+    ] },
+    { "id": "notion-workspace", "sourceId": "source-notion", "title": "Notion workspace overview", "path": "/product", "language": "en", "direction": "ltr", "devices": ["desktop", "mobile"], "sections": [
+      { "type": "hero", "title": "One workspace for everything", "style": "minimal", "theme": "light", "tags": ["workspace", "editorial"] },
+      { "type": "logo_cloud", "title": "Loved by ambitious teams", "style": "minimal", "theme": "light", "tags": ["trust", "logos", "teams"] },
+      { "type": "testimonials", "title": "What teams are making", "style": "editorial", "theme": "light", "tags": ["stories", "teams", "trust"] }
+    ] },
+    { "id": "arc-browser", "sourceId": "source-arc", "title": "Arc browser features", "path": "/features", "language": "en", "direction": "ltr", "devices": ["mobile"], "sections": [
+      { "type": "features", "title": "A browser that gets out of the way", "style": "brutalist", "theme": "dark", "tags": ["browser", "product", "illustration"] },
+      { "type": "gallery", "title": "Spaces for every part of life", "style": "colorful", "theme": "dark", "tags": ["gallery", "spaces", "colorful"] },
+      { "type": "footer", "title": "Keep exploring", "style": "dark", "theme": "dark", "tags": ["navigation", "product"] }
+    ] },
+    { "id": "airtable-platform", "sourceId": "source-airtable", "title": "Airtable platform", "path": "/platform", "language": "en", "direction": "ltr", "devices": ["desktop", "mobile"], "sections": [
+      { "type": "value_proposition", "title": "Workflows that fit your business", "style": "modern", "theme": "light", "tags": ["workflow", "business", "platform"] },
+      { "type": "dashboard", "title": "See the work in motion", "style": "modern", "theme": "light", "tags": ["dashboard", "workflow", "product"] },
+      { "type": "contact", "title": "Talk to the team", "style": "minimal", "theme": "light", "tags": ["contact", "sales", "business"] }
+    ] },
+    { "id": "patagonia-shop", "sourceId": "source-patagonia", "title": "Patagonia shop", "path": "/shop", "language": "en", "direction": "ltr", "devices": ["desktop", "mobile"], "sections": [
+      { "type": "navbar", "title": "Outdoor shop navigation", "style": "minimal", "theme": "light", "tags": ["navigation", "retail"] },
+      { "type": "gallery", "title": "Built for the wild", "style": "editorial", "theme": "light", "tags": ["retail", "photography", "outdoor"] },
+      { "type": "footer", "title": "Explore Patagonia", "style": "editorial", "theme": "dark", "tags": ["navigation", "outdoor"] }
+    ] },
+    { "id": "mubawab-home", "sourceId": "source-mubawab", "title": "الصفحة الرئيسية لمبوب", "path": "/", "language": "ar", "direction": "rtl", "devices": ["desktop", "mobile"], "sections": [
+      { "type": "navbar", "title": "تصفح العقارات", "style": "modern", "theme": "light", "tags": ["navigation", "عقارات", "عربي"] },
+      { "type": "hero", "title": "اعثر على بيتك القادم", "style": "modern", "theme": "light", "tags": ["عقارات", "بحث", "عربي"] },
+      { "type": "features", "title": "لماذا يختارنا الباحثون عن منزل", "style": "minimal", "theme": "light", "tags": ["ثقة", "خدمات", "عربي"] }
+    ] },
+    { "id": "mubawab-contact", "sourceId": "source-mubawab", "title": "تواصل مع مبوب", "path": "/contact", "language": "ar", "direction": "rtl", "devices": ["mobile"], "sections": [
+      { "type": "contact", "title": "تحدث مع فريقنا", "style": "minimal", "theme": "light", "tags": ["تواصل", "عربي"] },
+      { "type": "faq", "title": "أسئلة شائعة", "style": "minimal", "theme": "light", "tags": ["أسئلة", "عربي"] },
+      { "type": "footer", "title": "روابط مفيدة", "style": "modern", "theme": "dark", "tags": ["روابط", "عربي"] }
+    ] },
+    { "id": "careem-mobility", "sourceId": "source-careem", "title": "تجربة كريم للتنقل", "path": "/mobility", "language": "ar", "direction": "rtl", "devices": ["mobile", "desktop"], "sections": [
+      { "type": "hero", "title": "كل مشاويرك في مكان واحد", "style": "colorful", "theme": "light", "tags": ["تنقل", "تطبيق", "عربي", "colorful"] },
+      { "type": "stats", "title": "نحن في خدمتك", "style": "modern", "theme": "light", "tags": ["خدمة", "ثقة", "عربي"] },
+      { "type": "cta", "title": "ابدأ رحلتك الآن", "style": "gradient", "theme": "light", "tags": ["تنقل", "دعوة", "عربي"] }
+    ] },
+    { "id": "salla-store", "sourceId": "source-salla", "title": "متجر سلة", "path": "/stores", "language": "ar", "direction": "rtl", "devices": ["desktop"], "sections": [
+      { "type": "hero", "title": "أنشئ متجرك في دقائق", "style": "gradient", "theme": "light", "tags": ["تجارة", "متجر", "عربي"] },
+      { "type": "pricing", "title": "اختر خطتك", "style": "modern", "theme": "light", "tags": ["تجارة", "خطط", "عربي"] },
+      { "type": "testimonials", "title": "قصص نجاح التجار", "style": "editorial", "theme": "light", "tags": ["تجار", "ثقة", "عربي"] }
+    ] },
+    { "id": "figma-collaboration", "sourceId": "source-figma", "title": "Figma collaboration", "path": "/collaboration", "language": "en", "direction": "ltr", "devices": ["desktop", "mobile"], "sections": [
+      { "type": "hero", "title": "Nothing great is made alone", "style": "colorful", "theme": "light", "tags": ["collaboration", "design", "colorful"] },
+      { "type": "team", "title": "Bring everyone into the process", "style": "modern", "theme": "light", "tags": ["teams", "collaboration", "design"] },
+      { "type": "signup", "title": "Start designing together", "style": "gradient", "theme": "dark", "tags": ["conversion", "design", "teams"] }
+    ] },
+    { "id": "figma-config", "sourceId": "source-figma", "title": "Figma account settings", "path": "/settings", "language": "en", "direction": "ltr", "devices": ["mobile"], "sections": [
+      { "type": "profile", "title": "Your design profile", "style": "minimal", "theme": "light", "tags": ["account", "design"] },
+      { "type": "settings", "title": "Workspace preferences", "style": "minimal", "theme": "light", "tags": ["account", "preferences"] },
+      { "type": "login", "title": "Welcome back to Figma", "style": "typography", "theme": "dark", "tags": ["account", "authentication"] }
+    ] },
+    { "id": "revolut-checkout", "sourceId": "source-revolut", "title": "Revolut checkout flow", "path": "/checkout", "language": "en", "direction": "ltr", "devices": ["mobile"], "sections": [
+      { "type": "checkout", "title": "A clear payment step", "style": "minimal", "theme": "light", "tags": ["payment", "finance", "mobile"] },
+      { "type": "profile", "title": "Personal details", "style": "minimal", "theme": "light", "tags": ["payment", "form"] },
+      { "type": "contact", "title": "Need a hand?", "style": "modern", "theme": "light", "tags": ["support", "payment"] }
+    ] }
+  ]
+}

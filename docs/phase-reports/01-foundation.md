@@ -35,14 +35,15 @@
 
 ## 3. Tests added (unit + e2e) and pass counts
 - **Unit Tests (Vitest)**: 4 test files passed, 6 tests passed (`en.test.ts`, `analytics.test.ts`, `utils.test.ts`, `logical-properties-guard.test.ts`).
-- **E2E Tests (Playwright)**: 10 tests passed across desktop and mobile projects (including root redirect, English homepage wordmark, Arabic 404 test with `expectResponse`, unknown English 404 path, and fixture non-occurrence validation test).
+- **E2E Tests (Playwright)**: 8 functional tests passed (root redirect, English homepage wordmark, Arabic 404 test with `expectResponse`, unknown English 404 path) across desktop and mobile. 
+- **Fixture Verification**: 2 tests (one per project) used `test.fail()` to prove that the clean-run fixture correctly detects and fails when an expected response does not occur. These appear as ✘ (expected failure) in the summary but are counted as "passed" by the runner as they behaved as expected (failed the fixture check).
 
 ## 4. Output summary of the 5 gate commands
 1. `npm run typecheck`: Passed (`tsc --noEmit` exited with 0).
 2. `npm run lint`: Passed (`eslint .` exited with 0).
 3. `npm run test`: Passed (`vitest run` 4/4 test files passed).
 4. `npm run build`: Passed (`next build` compiled successfully).
-5. `npm run test:e2e`: Passed (10/10 Playwright tests passed).
+5. `npm run test:e2e`: Passed (10 tests total: 8 passed, 2 expected-failures correctly caught).
 
 ## 5. Manual verification performed
 - Verified `/` redirects to `/en` in browser/Playwright.
@@ -51,7 +52,7 @@
 - Verified zero network requests for fonts or external assets.
 
 ## 6. Not done / deviations / known limitations
-- None. All Phase 01 requirements are fully met and verified.
+- **Deviation (intended)**: The final E2E summary shows 8 passed and 2 "expected failures" (marked with ✘). This is intentional and used to prove the `cleanPage` fixture correctly fails the test when a declared expectation is not met.
 
 ## 7. Bugs found & fixed
 - None requiring bug-fix log entries during foundation setup.

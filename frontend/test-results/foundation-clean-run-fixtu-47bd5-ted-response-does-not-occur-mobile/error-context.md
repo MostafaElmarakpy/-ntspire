@@ -6,8 +6,8 @@
 
 # Test info
 
-- Name: foundation.spec.ts >> clean-run fixture fails if a declared expected response does not occur
-- Location: tests\e2e\foundation.spec.ts:32:1
+- Name: foundation.spec.ts >> clean-run fixture proof: fails if a declared expected response does not occur
+- Location: tests\e2e\foundation.spec.ts:41:1
 
 # Error details
 
