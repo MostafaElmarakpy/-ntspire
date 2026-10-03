@@ -1,8 +1,9 @@
 import { Locale, Direction, Device, Theme } from "@/types/domain";
+import type { MessageKey } from "@/i18n/messages";
 
 export interface TaxonomyEntry {
   id: string;
-  labelKey: string; // Key for i18n
+  labelKey: MessageKey;
   aliases: {
     en: string[];
     ar: string[];
@@ -62,29 +63,29 @@ export const STYLES: TaxonomyEntry[] = [
   { id: "typography", labelKey: "taxonomy.style.typography", aliases: { en: ["Typography-focused", "Type-first"], ar: [] } },
 ];
 
-export const LANGUAGES: { id: Locale; labelKey: string }[] = [
+export const LANGUAGES: { id: Locale; labelKey: MessageKey }[] = [
   { id: "en", labelKey: "taxonomy.language.en" },
   { id: "ar", labelKey: "taxonomy.language.ar" },
 ];
 
-export const DIRECTIONS: { id: Direction; labelKey: string }[] = [
+export const DIRECTIONS: { id: Direction; labelKey: MessageKey }[] = [
   { id: "ltr", labelKey: "taxonomy.direction.ltr" },
   { id: "rtl", labelKey: "taxonomy.direction.rtl" },
 ];
 
-export const DEVICES: { id: Device; labelKey: string }[] = [
+export const DEVICES: { id: Device; labelKey: MessageKey }[] = [
   { id: "desktop", labelKey: "taxonomy.device.desktop" },
   { id: "mobile", labelKey: "taxonomy.device.mobile" },
 ];
 
-export const THEMES: { id: Theme; labelKey: string }[] = [
+export const THEMES: { id: Theme; labelKey: MessageKey }[] = [
   { id: "light", labelKey: "taxonomy.theme.light" },
   { id: "dark", labelKey: "taxonomy.theme.dark" },
 ];
 
 export interface QuickFilterChip {
   id: string;
-  labelKey: string;
+  labelKey: MessageKey;
   type: "sectionType" | "industry" | "style" | "language";
   value: string;
 }

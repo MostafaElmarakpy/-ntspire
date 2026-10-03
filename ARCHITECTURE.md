@@ -106,7 +106,8 @@ for filtering, text search, sorting, pagination, facets, and similarity. UI
 code should import these contracts, never fixture arrays. A future API service
 can replace the mock exports without changing consumers. Development-only
 `mockConfig` supports delay, forced error, and forced empty modes via
-`NEXT_PUBLIC_MOCK_CONFIG` or `?__mock=...`; production ignores both controls.
+`NEXT_PUBLIC_MOCK_CONFIG` or `?__mock=...`; production ignores environment-wide
+controls but honors explicit query modes for deterministic state testing.
 
 ## Shared Taxonomy Config
 
@@ -195,6 +196,44 @@ Do not introduce Redux or another global state library unless a concrete need is
 - responsive
 - not generic SaaS
 - not a clone of reference websites
+
+## Phase 03 Design System and Shell
+
+The light-only interface uses semantic CSS variables in `frontend/src/app/globals.css`.
+The palette pairs evergreen ink (`--primary`) with a high-visibility leaf signal
+(`--accent`) on a cool paper surface. Type uses a local editorial serif stack
+for display headings and a local sans stack for UI/body copy; no remote font or
+asset request is required. Spacing follows a compact 4px-based scale, controls
+use an 8px maximum radius, and `--masonry-gap` is the shared future gallery-gap
+token. Focus treatment and reduced-motion behavior are global.
+
+`AppShell` wraps supported locale routes with a skip link, responsive header,
+main landmark, and footer. Navigation entries declare route availability in
+`frontend/src/config/navigation.ts`; owning phases enable their destinations.
+Phase 05 enables Explore, Sections, and the Mobile query shortcut. The
+locale-switcher space is reserved but hidden.
+The mobile sheet and sign-in explanation dialog are leaf Client Components;
+the remaining shell and route content stay Server Components.
+
+Reusable design-system primitives live in `frontend/src/components/` and the
+small shadcn set in `frontend/src/components/ui/`. All generated utilities were
+normalized to logical properties. The `/[locale]/dev/design-system` catalogue
+is development-only and presents component states for visual and axe review;
+it is not a product homepage or a sitemap route.
+
+## Phase 05 Explore
+
+The localized `/[locale]/explore` page parses and serializes canonical filter
+state through `frontend/src/lib/explore-state.ts`. Its first result page is
+server-rendered from `mockSearchService.search()`; the same service is exposed
+to client filter/history/pagination interactions by the read-only
+`frontend/src/app/api/explore/route.ts` handler. `query-engine.ts` remains the
+single owner of filtering, sorting, facets, and cursors. Result presentation
+maps sections to local crop assets and uses natural-ratio CSS columns for
+waterfall flow. Filter definitions and labels are derived from the shared
+taxonomy; the mobile filter sheet applies draft state, and browser history
+restores state from the URL. Explore, Sections, and the Mobile query shortcut
+are now enabled in navigation.
 
 ## Future Integration Boundary
 

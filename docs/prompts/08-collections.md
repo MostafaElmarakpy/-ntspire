@@ -14,11 +14,13 @@ Private collections that behave like the future API.
 - P8-06 Analytics `collection_created`; saves/unsaves from Phase 4 still tracked.
 - P8-07 Curated **featured collections** fixture (public, read-only) available through the service for the Phase 9 homepage — clearly separate from user collections.
 
+| 8b | `08b-account-admin-preview.md` | Mock account/profile + Admin preview (still no real backend) |
 ## Out of scope
 Public sharing, real auth (note in NEXT_STEPS that anonymous users must be prompted to sign in once real auth exists).
 
 ## Required tests
 Service CRUD + idempotency + validation (empty/duplicate names, max length), corrupt storage recovery, UI flows (create → add → remove → delete), optimistic rollback, e2e: save → add to collection → reload → still there → remove; clean console; axe clean.
+
 
 ## Exit
 Global gate + report.

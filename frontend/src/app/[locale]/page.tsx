@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { Wordmark } from "@/components/wordmark";
 import { isSupportedLocale } from "@/i18n/config";
+import { Wordmark } from "@/components/wordmark";
 import { t } from "@/i18n/messages";
 
 type LocalePageProps = Readonly<{
@@ -21,9 +21,5 @@ export default async function LocaleHomePage({ params }: LocalePageProps) {
     notFound();
   }
 
-  return (
-    <main className="mx-auto flex min-h-screen w-full max-w-5xl items-center px-6 py-16 sm:px-10">
-      <h1><Wordmark /></h1>
-    </main>
-  );
+  return <h1><Wordmark locale={locale} /></h1>;
 }

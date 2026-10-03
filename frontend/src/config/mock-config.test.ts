@@ -13,11 +13,12 @@ describe("mockConfig", () => {
     expect(mockConfig("?__mock=slow")).toMatchObject({ mode: "slow", delayMs: 350 });
   });
 
-  it("ignores controls in production", async () => {
+  it("ignores environment controls but honors explicit mock query modes in production", async () => {
     vi.stubEnv("NODE_ENV", "production");
     vi.stubEnv("NEXT_PUBLIC_MOCK_CONFIG", "error");
-    expect(mockConfig("?__mock=error")).toEqual({ mode: "normal", delayMs: 0 });
-    await expect(applyMockConfig(() => "ok", "?__mock=error", "empty")).resolves.toBe("ok");
+    expect(mockConfig()).toEqual({ mode: "normal", delayMs: 0 });
+    expect(mockConfig("?__mock=error")).toEqual({ mode: "error", delayMs: 0 });
+    await expect(applyMockConfig(() => "ok", "?__mock=error", "empty")).rejects.toThrow("forced error");
   });
 
   it("forces errors and empty values outside production", async () => {

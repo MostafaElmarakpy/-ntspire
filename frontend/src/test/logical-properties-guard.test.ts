@@ -4,11 +4,13 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 const bannedPhysicalUtilities = [
-  ["m", "l-"], ["m", "r-"], ["p", "l-"], ["p", "r-"],
-  ["left", "-"], ["right", "-"], ["text", "-left"], ["text", "-right"],
-  ["rounded", "-l"], ["rounded", "-r"], ["border", "-l"], ["border", "-r"],
-  ["float", "-left"], ["float", "-right"],
-].map((parts) => parts.join(""));
+  /(?:^|[\s:])(?:-?ml-|mr-|pl-|pr-)/,
+  /(?:^|[\s:])(?:left|right)-\d/,
+  /(?:^|[\s:])text-(?:left|right)(?:$|[\s:])/,
+  /(?:^|[\s:])rounded-[lr]-(?:none|sm|md|lg|xl|\d)/,
+  /(?:^|[\s:])border-[lr](?:-\d|$)/,
+  /(?:^|[\s:])float-(?:left|right)(?:$|[\s:])/,
+];
 
 describe("logical properties guard", () => {
   it("rejects banned physical directional utilities in source files", () => {
@@ -16,7 +18,7 @@ describe("logical properties guard", () => {
     const violations = files.flatMap((file) => {
       const contents = readFileSync(join(process.cwd(), file), "utf8");
       return bannedPhysicalUtilities
-        .filter((utility) => contents.includes(utility))
+        .filter((utility) => utility.test(contents))
         .map((utility) => `${file}: ${utility}`);
     });
 

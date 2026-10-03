@@ -15,6 +15,14 @@ describe("querySections", () => {
     expect(querySections(MOCK_SECTIONS, MOCK_SOURCES, { q: "pricing" }).items.every((section) => section.sectionTypeId === "pricing" || section.tags.includes("pricing"))).toBe(true);
   });
 
+  it("returns Arabic references and matching facet counts", () => {
+    const result = querySections(MOCK_SECTIONS, MOCK_SOURCES, { language: "ar" });
+
+    expect(result.items.length).toBeGreaterThan(0);
+    expect(result.items.every((section) => section.language === "ar")).toBe(true);
+    expect(result.facets.languages.ar).toBe(result.total);
+  });
+
   it("sorts, paginates at boundaries, and returns facets", () => {
     const first = querySections(MOCK_SECTIONS, MOCK_SOURCES, { sortBy: "latest", limit: 2 });
     expect(first.items).toHaveLength(2);

@@ -1,4 +1,5 @@
 import { expect, test as base, type Page } from "@playwright/test";
+import { getMissingResponseErrors } from "../../src/lib/clean-run-expectations";
 
 type TrackedExpectation = {
   path: string;
@@ -37,7 +38,7 @@ export const test = base.extend<{ cleanPage: CleanPage }>({
       }
     });
     page.on("pageerror", (error) => failures.push(`page error: ${error.message}`));
-    page.on("requestfailed", (request) => failures.push(`request failed: ${request.url()}`));
+    page.on("requestfailed", (request) => failures.push(`request failed (${request.method()}, ${request.failure()?.errorText ?? "unknown"}): ${request.url()}`));
     page.on("response", (response) => {
       const status = response.status();
       const url = response.url();
@@ -56,11 +57,7 @@ export const test = base.extend<{ cleanPage: CleanPage }>({
 
     await completeFixture(cleanPage);
 
-    for (const exp of expectations) {
-      if (!exp.received) {
-        failures.push(`expected response { path: "${exp.path}", status: ${exp.status} } did not occur`);
-      }
-    }
+    failures.push(...getMissingResponseErrors(expectations));
 
     expect(failures).toEqual([]);
   },

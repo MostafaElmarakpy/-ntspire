@@ -36,4 +36,5 @@ export interface SectionService {
 
 export interface SearchService {
   search(request: SearchRequest): Promise<SearchResult<Section>>;
+  suggest?(request: { q?: string; limit?: number }): Promise<string[]>;
 }
