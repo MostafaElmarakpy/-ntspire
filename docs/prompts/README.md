@@ -11,7 +11,10 @@ Run them IN ORDER, one per Claude Code session (or one per `/clear`). Never star
 | 4   | `04-masonry-cards-save.md`     | Masonry gallery, cards, Save                                                 |
 | 5   | `05-explore-filters.md`        | Explore, filters, URL state                                                  |
 | 6   | `06-search-overlay.md`         | Search overlay, inference, Arabic Websites chip                              |
-| 7   | `07-detail-pages.md`           | Section/Page/Source, View in Context, downloads                              |
+| 7   | `07-detail-pages.md`           | Section/Page/Source, View in
+Websites chip                              |
+| 7b   | `07b-card-redesign-detail-modal.md`           | Section/Page/Source, View in
+Context, downloads                              |
 | 8   | `08-collections.md`            | Collections                                                                  |
 | 8b  | `08b-account-admin-preview.md` | Mock account/profile/admin preview (localStorage only, no real auth/backend) |
 | 9   | `09-homepage-seo.md`           | Homepage, metadata, sitemap/robots                                           |

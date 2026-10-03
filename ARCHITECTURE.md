@@ -221,6 +221,45 @@ normalized to logical properties. The `/[locale]/dev/design-system` catalogue
 is development-only and presents component states for visual and axe review;
 it is not a product homepage or a sitemap route.
 
+## Phase 04 Masonry and Save
+
+The gallery is a true waterfall grid, not CSS multi-column. `distributeIntoColumns`
+in `frontend/src/lib/masonry.ts` is a pure function that appends each item to the
+currently shortest column, so an item's placement follows the current column
+heights instead of the browser's own balance heuristic. CSS `columns` was
+rejected because it fills columns by height first and therefore breaks ranking
+order: on a three-column board the first three ranked references can all land in
+the same column, which contradicts `docs/product-spec.md` (results are ordered by
+relevance). Column count comes from `MASONRY_BREAKPOINTS` (1440/1024/768/0 →
+4/3/2/1); the count is a viewport fact the server cannot know, so `MasonryGrid`
+reads it with `useSyncExternalStore` against a constant one-column server
+snapshot, which keeps hydration warning-free and recomputes on resize. Column
+placement uses a height estimate derived from each asset's declared
+`width`/`height` plus a footer allowance, and every card reserves its space with
+`aspect-ratio`, so images loading in never shift the layout. `eagerRows` marks the
+ranked rows that are painted above the fold as eager for `next/image` (the dev
+gallery uses three, Explore the default one); every other image stays lazy. The
+mock assets are SVGs, for which Next's default loader already sets `unoptimized`,
+so no manual flag is needed. `direction: "rtl"` reverses column array order only —
+image content is never mirrored — and RTL stays disabled in the UI until Phase 11.
+
+Saving is deliberately thin and server-shaped. `SaveService` is the interface
+(`frontend/src/lib/save-service.ts`); `MockSaveService` implements it over
+localStorage and resolves the saved id set, treating missing or corrupt storage as
+empty. `frontend/src/lib/saved-store.ts` is the module-level store that the
+`useSaved` hook subscribes to with `useSyncExternalStore`; a save flips the card
+optimistically, then the service result is authoritative (a mismatched result
+wins and is rolled back to, and `saved`/`unsaved` analytics fire only after the
+service settles). Until real accounts arrive in Phase 08 every visitor is an
+anonymous owner of their own browser-local saves.
+
+`/[locale]/dev/gallery` renders the full mock dataset in the grid and is
+development-only: it calls `notFound()` when `NODE_ENV` is `production`. Its
+loading skeleton is an in-page Suspense fallback rather than a route-level
+`loading.tsx`, because a route-level boundary wraps the whole page and flushes a
+`200` shell before the guard runs, which would leave the dev route reachable in a
+production build.
+
 ## Phase 05 Explore
 
 The localized `/[locale]/explore` page parses and serializes canonical filter
@@ -229,8 +268,9 @@ server-rendered from `mockSearchService.search()`; the same service is exposed
 to client filter/history/pagination interactions by the read-only
 `frontend/src/app/api/explore/route.ts` handler. `query-engine.ts` remains the
 single owner of filtering, sorting, facets, and cursors. Result presentation
-maps sections to local crop assets and uses natural-ratio CSS columns for
-waterfall flow. Filter definitions and labels are derived from the shared
+maps sections to local crop assets and renders them through the Phase 04
+`MasonryGrid`, so the ranked order of the result page is preserved in the
+columns. Filter definitions and labels are derived from the shared
 taxonomy; the mobile filter sheet applies draft state, and browser history
 restores state from the URL. Explore, Sections, and the Mobile query shortcut
 are now enabled in navigation.

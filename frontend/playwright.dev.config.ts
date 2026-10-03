@@ -4,7 +4,7 @@ const port = 3101;
 
 export default defineConfig({
   testDir: "./tests/e2e",
-  testMatch: "**/design-system.dev.spec.ts",
+  testMatch: "**/*.dev.spec.ts",
   workers: 1,
   reporter: "list",
   use: {
@@ -19,6 +19,6 @@ export default defineConfig({
   },
   projects: [
     { name: "desktop", use: { browserName: "chromium", viewport: { width: 1440, height: 900 } } },
-    { name: "mobile", use: { browserName: "chromium", viewport: { width: 390, height: 844 }, isMobile: true } },
+    { name: "mobile", use: { browserName: "chromium", viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true } },
   ],
 });

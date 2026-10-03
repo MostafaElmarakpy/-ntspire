@@ -6,9 +6,9 @@ describe("mock services", () => {
     const search = mockSearchService.search({ limit: 3 });
     expect(search).toBeInstanceOf(Promise);
     await expect(search).resolves.toMatchObject({ total: 42, items: expect.any(Array), facets: expect.any(Object) });
-    const similar = await mockSectionService.getSimilar("section-figma-collaboration-1");
+    const similar = await mockSectionService.getSimilar("section-papercrane-collaboration-1");
     expect(similar).toHaveLength(1);
-    expect(similar[0].id).toBe("section-careem-mobility-1");
+    expect(similar[0].id).toBe("section-subul-mobility-1");
     expect(similar[0].sectionTypeId).toBe("hero");
   });
 

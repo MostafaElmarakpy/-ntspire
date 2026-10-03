@@ -35,6 +35,21 @@ locale-switcher space is reserved but hidden. Search overlay behavior and
 inference remain Phase 06 work; Explore exposes the shared URL serializer and
 SearchService needed for that handoff.
 
+## Phase 04 handoff
+
+The masonry gallery, the reference cards, and the save core are ready. Future
+gallery surfaces should render through `MasonryGrid` — `frontend/src/lib/masonry.ts`
+owns column placement — rather than CSS columns, and every card image must declare
+the real `width`/`height` of its asset so that placement stays accurate.
+`SaveButton` and `useSaved` are the shared save affordance; Phase 08 mounts
+collections beside them, and until real accounts exist every visitor is an
+anonymous owner of their own browser-local saves. The development-only gallery is
+at `/en/dev/gallery` and returns 404 in a production build; its skeleton is an
+in-page Suspense fallback, not a route-level `loading.tsx`, so the production
+guard is not lost behind a flushed `200` shell. Explore's results were moved onto
+`MasonryGrid` in a scoped correction, so Explore's URL state, filters, sorting,
+and pagination are unchanged.
+
 ## Phase 05 handoff
 
 The Explore route uses `mockSearchService.search()` for its server-rendered

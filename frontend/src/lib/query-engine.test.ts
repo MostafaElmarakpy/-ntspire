@@ -6,11 +6,11 @@ describe("querySections", () => {
   it("combines taxonomy, device, source, theme, and text filters", () => {
     const result = querySections(MOCK_SECTIONS, MOCK_SOURCES, { q: "hero", industryId: "saas", styleId: "dark", device: "mobile", theme: "dark" });
     expect(result.items).toHaveLength(1);
-    expect(result.items[0].id).toBe("section-linear-home-2");
+    expect(result.items[0].id).toBe("section-flowbase-home-2");
   });
 
   it("searches title, source name, tags, and section type", () => {
-    expect(querySections(MOCK_SECTIONS, MOCK_SOURCES, { q: "Revolut" }).items.length).toBeGreaterThan(0);
+    expect(querySections(MOCK_SECTIONS, MOCK_SOURCES, { q: "Nimbus" }).items.length).toBeGreaterThan(0);
     expect(querySections(MOCK_SECTIONS, MOCK_SOURCES, { q: "navigation" }).items.length).toBeGreaterThan(0);
     expect(querySections(MOCK_SECTIONS, MOCK_SOURCES, { q: "pricing" }).items.every((section) => section.sectionTypeId === "pricing" || section.tags.includes("pricing"))).toBe(true);
   });
@@ -36,8 +36,8 @@ describe("querySections", () => {
   });
 
   it("ranks shared-tag similarity with deterministic ties", () => {
-    const base = MOCK_SECTIONS.find((section) => section.id === "section-linear-home-2")!;
-    const candidate = MOCK_SECTIONS.find((section) => section.id === "section-figma-collaboration-1")!;
+    const base = MOCK_SECTIONS.find((section) => section.id === "section-flowbase-home-2")!;
+    const candidate = MOCK_SECTIONS.find((section) => section.id === "section-papercrane-collaboration-1")!;
     expect(compareSharedTags(base, candidate)).toBe(0);
     const ranked = querySections(MOCK_SECTIONS, MOCK_SOURCES, { sectionTypeId: "hero", sortBy: "featured" });
     expect(ranked.items.length).toBeGreaterThan(0);

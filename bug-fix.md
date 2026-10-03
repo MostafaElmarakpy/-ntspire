@@ -44,6 +44,34 @@ This file contains only real bugs discovered during development or testing.
 - Tests: `playwright.dev.config.ts`; full `design-system.dev.spec.ts` suite passes 4/4 with the original timeout values.
 - Notes: The route rendered successfully in isolated runs; no design-system or Explore route defect was found.
 
+### BUG-004 — Phase 04 skipped, so Explore was built on CSS multi-columns
+
+- Status: Fixed
+- Severity: High
+- Area: Gallery layout (Phase 04 / Phase 05)
+- Date: 2026-10-03
+- Reproduction: Open `/en/explore` in a 3- or 4-column viewport and compare the left-to-right positions of the first cards against the search-result ranking.
+- Expected: The gallery is a true waterfall grid with shortest-column placement, and the highest-ranked references fill the top row in ranking order (`docs/prompts/04-masonry-cards-save.md` P4-01, P4-02; result ordering in `docs/product-spec.md`).
+- Actual: Phase 04 was never implemented — the batch moved from Phase 03 straight to Phase 05 — so Explore rendered its results with Tailwind `columns-3`/`columns-4`. CSS multi-column balances by height, so ranked items 1, 2 and 3 could all land in the same column and the ranking order was not visible across the page.
+- Root Cause: A missing prerequisite. Phase 05 was built against a gallery mechanism that Phase 04 was supposed to provide, and nothing detected the gap because Phase 05's own tests asserted only that columns rendered, never that column placement followed ranking order.
+- Fix: Implemented the real Phase 04 scope (MasonryGrid with `distributeIntoColumns`, SaveService/MockSaveService/useSaved/SaveButton, PageCard/SourceCard, the dev gallery, and this phase's report), then made one scoped change to Explore: its results now render through the shared `MasonryGrid` instead of CSS `columns-*`. Explore's URL state, filters, sorting, pagination, mock states and accessibility behavior were not touched.
+- Tests: `src/lib/masonry.test.ts` (placement, balance, breakpoints, RTL); `src/features/explore/explore-order.test.ts` targets this regression directly — it asserts the ranked order survives the column assignment (the first card of every column is one of results 1..n, and the top three never share a column); `tests/e2e/gallery.dev.spec.ts` asserts the 1440px top row is ranked items 1-4. The whole Phase 05 suite was then re-run unchanged and still passes.
+- Notes: `ExploreSectionCard` was kept so the correction stayed limited to the rendering mechanism; Explore adopts the Phase 04 `SectionCard` (Save + Open) when Phase 07 wires the detail route.
+
+### BUG-005 — Mock Source names were real companies
+
+- Status: Fixed
+- Severity: Medium
+- Area: Mock fixture content (Phase 02 fixtures, generated assets, tests)
+- Date: 2026-10-03
+- Reproduction: Inspect `frontend/src/mocks/mock-manifest.json` — `sources[].name`, `sources[].url`, `attribution`, and page titles such as "Linear product homepage".
+- Expected: `docs/prompts/00-global-rules.md` § "Mock data content rules": mock Source names must be realistic but fictional and never the name of a real, identifiable company, product or website. The rule applies everywhere mock content is generated or referenced — fixture data, generated SVG filenames and content, page titles, attribution text, and test fixtures/assertions.
+- Actual: All ten mock sources used real company names (Linear, Revolut, Notion, Arc Browser, Airtable, Patagonia, Figma, plus Arabic-market brands). Because the fixture ids were derived from those names, the branding also reached the generated SVG filenames and the page and section titles written into the SVG bodies, and it was asserted directly in `src/lib/query-engine.test.ts` and `src/mocks/services.test.ts`.
+- Root Cause: The Phase 02 fixture generator picked real products as "realistic" references. The rule lives in the global prompt rather than in the generator, so nothing failed when the names were written and no test asserted anything about the names themselves.
+- Fix: Renamed all ten sources to realistic-but-fictional brands, keeping the count, industry, language and style spread identical — Flowbase, Nimbus Pay, Arcadia Docs, Cloudloom Browser, Brightloom, Cedarline, ركائز, سبل, رفيف, Papercrane. The source ids, the page ids derived from them and the two section titles that named a brand were renamed with them, the assets were regenerated with `npm run mock:assets` (the generator clears the directory first, so no stale files remain), every source `url` now points at a reserved `.example` domain so no real site is referenced, and the fixture assertions that named the old ids were updated.
+- Tests: New `src/mocks/mock-content.test.ts` scans the fixture data, the asset filenames and the asset bodies for a denylist of the old real brands, requires every source URL to sit on a `.example` domain, and fails if the asset directory and the fixtures disagree in either direction — so a future rename cannot leave stale branding or orphan files behind. `data-integrity.test.ts`, `query-engine.test.ts` and `services.test.ts` still pass, and their behavior is unchanged apart from the renamed fixture ids.
+- Notes: `Figma` is still named in `ARCHITECTURE.md`, `NEXT_STEPS.md`, `docs/product-spec.md`, `docs/prompts/` and the `figma_clicked` analytics event, but every one of those refers to the real future integration the product spec deliberately defers to Phase 11, not to mock content, so they are correct as written.
+
 ## Bug Template
 
 ### BUG-001 — Title
