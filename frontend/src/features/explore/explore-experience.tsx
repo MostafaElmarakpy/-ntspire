@@ -8,8 +8,11 @@ import { ErrorState } from "@/components/error-state";
 import { ExploreFilters } from "@/features/explore/explore-filters";
 import { trackExploreDeviceView, trackExploreFilterApplied } from "@/features/explore/analytics";
 import { FILTER_LABELS, getExploreFilterLabel, type FilterKey } from "@/features/explore/filter-options";
+import { MasonryGrid } from "@/features/gallery/masonry-grid";
+import { MasonrySkeleton } from "@/features/gallery/masonry-skeleton";
 import { t } from "@/i18n/messages";
 import type { SupportedLocale } from "@/i18n/config";
+import { estimateMasonryHeight } from "@/lib/masonry";
 import type { ExploreState } from "@/lib/explore-state";
 import { parseExploreParams, serializeExploreParams } from "@/lib/explore-state";
 import type { SearchFacets } from "@/types/domain";
@@ -17,11 +20,6 @@ import type { ExploreCardData, ExplorePageData } from "./types";
 import { ExploreSectionCard } from "./section-card";
 
 const FILTER_KEYS = Object.keys(FILTER_LABELS) as FilterKey[];
-const SKELETON_SIZES = [
-  { width: 1440, height: 640 },
-  { width: 1440, height: 420 },
-  { width: 1440, height: 960 },
-];
 
 interface ExploreApiResponse {
   data?: ExplorePageData;
@@ -221,9 +219,7 @@ export function ExploreExperience({ locale, state, initialData, initialError }: 
       ) : null}
 
       {loading ? (
-        <div className="columns-1 gap-[var(--masonry-gap)] sm:columns-2 xl:columns-3 2xl:columns-4" aria-busy="true">
-          {SKELETON_SIZES.map((size, index) => <SectionSkeleton key={index} {...size} locale={locale} />)}
-        </div>
+        <MasonrySkeleton label={`${t(locale, "explore.title")} — ${t(locale, "ui.loading")}`} />
       ) : pageError ? (
         <ErrorState
           title={t(locale, "explore.errorTitle")}
@@ -240,9 +236,13 @@ export function ExploreExperience({ locale, state, initialData, initialError }: 
         </div>
       ) : (
         <>
-          <div className="columns-1 gap-[var(--masonry-gap)] sm:columns-2 xl:columns-3 2xl:columns-4" role="region" aria-label={t(locale, "explore.resultsLabel")}>
-            {items.map((card) => <ExploreSectionCard key={card.id} card={card} />)}
-          </div>
+          <MasonryGrid
+            items={items}
+            getKey={(card) => card.id}
+            heightEstimator={(card) => estimateMasonryHeight(card.image)}
+            renderItem={(card, { priority }) => <ExploreSectionCard card={card} priority={priority} />}
+            label={t(locale, "explore.resultsLabel")}
+          />
           {loadMoreError ? (
             <ErrorState
               title={t(locale, "explore.errorTitle")}

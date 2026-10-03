@@ -1,15 +1,16 @@
 import Image from "next/image";
 import type { ExploreCardData } from "./types";
 
-export function ExploreSectionCard({ card }: { card: ExploreCardData }) {
+export function ExploreSectionCard({ card, priority = false }: { card: ExploreCardData; priority?: boolean }) {
   return (
-    <article className="mb-[var(--masonry-gap)] inline-block w-full break-inside-avoid overflow-hidden rounded-md border border-border bg-card align-top">
+    <article className="overflow-hidden rounded-md border border-border bg-card">
       <Image
         src={card.image.src}
         alt={card.image.alt}
         width={card.image.width}
         height={card.image.height}
-        sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, (max-width: 1535px) 33vw, 25vw"
+        sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, (max-width: 1439px) 33vw, 25vw"
+        loading={priority ? "eager" : "lazy"}
         className="h-auto w-full"
       />
       <div className="space-y-3 p-4">
