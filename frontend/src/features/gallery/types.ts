@@ -15,6 +15,8 @@ export interface SectionCardData {
   tags: string[];
   tagsLabel: string;
   language: string;
+  /** Derived from the domain `language` id. Feeds the dev-only Arabic marker; no fixture data involved. */
+  isArabic: boolean;
   devices: Device[];
   devicesLabel: string;
   image: CardImage;
@@ -25,6 +27,8 @@ export interface PageCardData {
   title: string;
   sourceName: string;
   language: string;
+  /** Derived from the domain `language` id. Feeds the dev-only Arabic marker; no fixture data involved. */
+  isArabic: boolean;
   direction: string;
   devicesLabel: string;
   sectionCount: number;
@@ -37,6 +41,11 @@ export interface SourceCardData {
   name: string;
   description: string;
   industry: string;
+  /**
+   * Sources carry no language of their own, so this is true when any of the
+   * source's pages is Arabic. Feeds the dev-only Arabic marker only.
+   */
+  isArabic: boolean;
   pageCount: number;
   pageCountLabel: string;
   image: CardImage;

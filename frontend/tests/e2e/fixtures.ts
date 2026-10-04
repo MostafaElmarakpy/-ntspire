@@ -1,4 +1,4 @@
-import { expect, test as base, type Page } from "@playwright/test";
+import { expect, test as base, type Page, type Request } from "@playwright/test";
 import { getMissingResponseErrors } from "../../src/lib/clean-run-expectations";
 
 type TrackedExpectation = {
@@ -16,6 +16,8 @@ export const test = base.extend<{ cleanPage: CleanPage }>({
   cleanPage: async ({ page }, completeFixture) => {
     const expectations: TrackedExpectation[] = [];
     const failures: string[] = [];
+    /** Requests that already produced a response, so a later cancellation is not a failure. */
+    const answered = new WeakSet<Request>();
 
     const cleanPage = Object.assign(page, {
       expectResponse({ path, status }: { path: string; status: number }) {
@@ -38,8 +40,20 @@ export const test = base.extend<{ cleanPage: CleanPage }>({
       }
     });
     page.on("pageerror", (error) => failures.push(`page error: ${error.message}`));
-    page.on("requestfailed", (request) => failures.push(`request failed (${request.method()}, ${request.failure()?.errorText ?? "unknown"}): ${request.url()}`));
+    page.on("requestfailed", (request) => {
+      /*
+        A client-side navigation streams its RSC payload, and the router cancels
+        that stream once the new route has rendered. Chromium reports the
+        cancellation as an aborted request even though the response arrived with a
+        200, so a request that was already answered is not a failure — the page it
+        was fetching for rendered fine. A request that never received a response
+        is still reported, whatever the reason.
+      */
+      if (answered.has(request) && request.failure()?.errorText === "net::ERR_ABORTED") return;
+      failures.push(`request failed (${request.method()}, ${request.failure()?.errorText ?? "unknown"}): ${request.url()}`);
+    });
     page.on("response", (response) => {
+      answered.add(response.request());
       const status = response.status();
       const url = response.url();
       const pathname = new URL(url).pathname;

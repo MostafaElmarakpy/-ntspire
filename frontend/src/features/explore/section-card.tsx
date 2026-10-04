@@ -1,9 +1,12 @@
 import Image from "next/image";
+import { DevArabicMarker } from "@/components/dev-arabic-marker";
+import type { SupportedLocale } from "@/i18n/config";
 import type { ExploreCardData } from "./types";
 
-export function ExploreSectionCard({ card, priority = false }: { card: ExploreCardData; priority?: boolean }) {
+export function ExploreSectionCard({ card, locale, priority = false }: { card: ExploreCardData; locale: SupportedLocale; priority?: boolean }) {
   return (
-    <article className="overflow-hidden rounded-md border border-border bg-card">
+    <article className="relative overflow-hidden rounded-md border border-border bg-card">
+      <DevArabicMarker isArabic={card.isArabic} locale={locale} />
       <Image
         src={card.image.src}
         alt={card.image.alt}

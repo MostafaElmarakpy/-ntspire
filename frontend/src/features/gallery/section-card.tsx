@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
+import { DevArabicMarker } from "@/components/dev-arabic-marker";
 import { SaveButton } from "@/components/save-button";
 import { t } from "@/i18n/messages";
 import type { SupportedLocale } from "@/i18n/config";
@@ -22,6 +23,7 @@ export function SectionCard({ card, locale, openHref, priority = false }: Sectio
 
   return (
     <article id={`card-${card.id}`} className="group relative overflow-hidden rounded-md border border-border bg-card">
+      <DevArabicMarker isArabic={card.isArabic} locale={locale} />
       {/*
         Hover overlay. Absolutely positioned so showing or hiding the actions can
         never change the measured card height, and forced visible on touch devices

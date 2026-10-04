@@ -51,6 +51,7 @@ function toSectionCard(section: Section, locale: SupportedLocale): SectionCardDa
     tags: section.tags,
     tagsLabel: t(locale, "gallery.tagsLabel"),
     language: t(locale, LANGUAGES.find((entry) => entry.id === section.language)!.labelKey),
+    isArabic: section.language === "ar",
     devices,
     devicesLabel: deviceAvailabilityLabel(locale, devices),
     image: {
@@ -74,6 +75,7 @@ function toPageCard(page: Page, locale: SupportedLocale): PageCardData | undefin
     title: page.title,
     sourceName: source.name,
     language: t(locale, LANGUAGES.find((entry) => entry.id === page.language)!.labelKey),
+    isArabic: page.language === "ar",
     direction: t(locale, DIRECTIONS.find((entry) => entry.id === page.direction)!.labelKey),
     devicesLabel: deviceAvailabilityLabel(locale, page.devices),
     sectionCount,
@@ -94,6 +96,7 @@ function toSourceCard(sourceId: string, locale: SupportedLocale): SourceCardData
     name: source.name,
     description: source.description,
     industry: t(locale, industry.labelKey),
+    isArabic: pages.some((page) => page.language === "ar"),
     pageCount: pages.length,
     pageCountLabel: t(locale, "gallery.pageCount"),
     image,

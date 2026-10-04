@@ -1,136 +1,209 @@
-import { INDUSTRIES, SECTION_TYPES, STYLES } from "@/config/taxonomy";
+import { DEVICES, DIRECTIONS, INDUSTRIES, LANGUAGES, SECTION_TYPES, STYLES } from "@/config/taxonomy";
+import type { Device, Direction, Locale } from "@/types/domain";
+
+export type SearchFilters = {
+  sectionTypeId?: string;
+  industryId?: string;
+  styleId?: string;
+  language?: Locale;
+  direction?: Direction;
+  device?: Device;
+};
 
 export type SearchParserResult = {
+  /** Whatever the query said that no taxonomy entry claimed. Never lost. */
   q: string;
-  filters: {
-    sectionTypeId?: string;
-    industryId?: string;
-    styleId?: string;
-    language?: "en" | "ar";
-    direction?: "ltr" | "rtl";
-    device?: "desktop" | "mobile";
-  };
+  filters: SearchFilters;
 };
 
-const normalize = (value: string) => value.toLowerCase().replace(/[_-]/g, " ").replace(/\s+/g, " ").trim();
+/**
+ * `aliases.ar` is deliberately part of the shape even though it stays empty
+ * until Phase 11: adding Arabic search aliases then must be a data change only,
+ * never a parser change.
+ */
+type AliasEntry = { id: string; aliases?: Partial<Record<Locale, string[]>> };
 
-type TaxonomyEntry = { id: string; aliases?: { en?: string[] } };
+export interface SearchTaxonomy {
+  sectionTypes: readonly AliasEntry[];
+  industries: readonly AliasEntry[];
+  styles: readonly AliasEntry[];
+}
 
-const createAliasMap = (entries: TaxonomyEntry[]) => {
-  const aliases: Array<[string, string]> = [];
-  for (const entry of entries) {
-    aliases.push([normalize(entry.id), entry.id]);
-    for (const alias of entry.aliases?.en ?? []) {
-      aliases.push([normalize(alias), entry.id]);
+const defaultTaxonomy: SearchTaxonomy = {
+  sectionTypes: SECTION_TYPES,
+  industries: INDUSTRIES,
+  styles: STYLES,
+};
+
+/**
+ * Lower-cases, turns `-`/`_` into word breaks and drops punctuation, so
+ * "E-commerce", "e-commerce" and "e commerce" all reduce to the same phrase.
+ * Unicode-aware so Arabic aliases survive Phase 11 unchanged.
+ */
+export const normalizeSearchTerm = (value: string) =>
+  value
+    .toLowerCase()
+    .replace(/[-_]/g, " ")
+    .replace(/[^\p{L}\p{N}\s]/gu, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+type FilterDimension = keyof SearchFilters;
+
+/**
+ * Declaration order is the tie-breaker when a phrase matches several
+ * dimensions, so the most content-like reading wins: a word is more usefully a
+ * section type than a device name.
+ */
+const dimensionRank: Record<FilterDimension, number> = {
+  sectionTypeId: 0,
+  industryId: 1,
+  styleId: 2,
+  language: 3,
+  direction: 4,
+  device: 5,
+};
+
+type Candidate = { dimension: FilterDimension; id: string; exactId: boolean };
+
+/** Non-taxonomy shortcuts: language, direction and device are fixed vocabularies, not taxonomy lists. */
+const shortcutVocabulary: Array<{ dimension: FilterDimension; id: string; aliases: string[] }> = [
+  { dimension: "language", id: "en", aliases: ["en", "english"] },
+  { dimension: "language", id: "ar", aliases: ["ar", "arabic", "arabic websites"] },
+  { dimension: "direction", id: "ltr", aliases: ["ltr", "left to right"] },
+  { dimension: "direction", id: "rtl", aliases: ["rtl", "right to left"] },
+  { dimension: "device", id: "desktop", aliases: ["desktop"] },
+  { dimension: "device", id: "mobile", aliases: ["mobile"] },
+];
+
+/** "software as a service" is the longest phrase the taxonomy currently defines. */
+const MAX_ALIAS_WORDS = 4;
+
+/** True when `phrase` is a better reading of the same words than `current`.
+ *
+ * "Most specific valid match" is resolved in this order: a phrase that *is* the
+ * entry's id beats a phrase that is merely one of its aliases (the `finance`
+ * industry beats the `fintech` entry, whose alias list also contains
+ * "Finance"); then the dimension order above; then the earlier definition.
+ * Every step is deterministic, so the same query always resolves the same way.
+ */
+const isMoreSpecific = (candidate: Candidate, current: Candidate) => {
+  if (candidate.exactId !== current.exactId) return candidate.exactId;
+  return dimensionRank[candidate.dimension] < dimensionRank[current.dimension];
+};
+
+/**
+ * First mention wins, so a repeated term cannot flip an earlier decision.
+ *
+ * Identity values are re-checked against the shared taxonomy before they are
+ * written, which is what keeps a plain string from becoming a `Locale`,
+ * `Direction` or `Device` by assertion alone.
+ */
+function recordFilter(filters: SearchFilters, matched: Candidate): void {
+  switch (matched.dimension) {
+    case "sectionTypeId": if (filters.sectionTypeId === undefined) filters.sectionTypeId = matched.id; return;
+    case "industryId": if (filters.industryId === undefined) filters.industryId = matched.id; return;
+    case "styleId": if (filters.styleId === undefined) filters.styleId = matched.id; return;
+    case "language": {
+      const id = LANGUAGES.find((entry) => entry.id === matched.id)?.id;
+      if (id && filters.language === undefined) filters.language = id;
+      return;
+    }
+    case "direction": {
+      const id = DIRECTIONS.find((entry) => entry.id === matched.id)?.id;
+      if (id && filters.direction === undefined) filters.direction = id;
+      return;
+    }
+    case "device": {
+      const id = DEVICES.find((entry) => entry.id === matched.id)?.id;
+      if (id && filters.device === undefined) filters.device = id;
     }
   }
-  return new Map(aliases);
-};
+}
 
-const languageAliases = new Map<string, "en" | "ar">([
-  ["english", "en"],
-  ["en", "en"],
-  ["arabic", "ar"],
-  ["ar", "ar"],
-  ["arabic websites", "ar"],
-]);
+function buildAliasLookup(taxonomy: SearchTaxonomy, locale: Locale): Map<string, Candidate> {
+  const lookup = new Map<string, Candidate>();
 
-const directionAliases = new Map<string, "ltr" | "rtl">([
-  ["ltr", "ltr"],
-  ["left to right", "ltr"],
-  ["right to left", "rtl"],
-  ["rtl", "rtl"],
-]);
+  const add = (phrase: string, candidate: Candidate) => {
+    const key = normalizeSearchTerm(phrase);
+    if (!key) return;
+    const current = lookup.get(key);
+    if (!current || isMoreSpecific(candidate, current)) lookup.set(key, candidate);
+  };
 
-const deviceAliases = new Map<string, "desktop" | "mobile">([
-  ["desktop", "desktop"],
-  ["mobile", "mobile"],
-]);
+  const addTaxonomy = (entries: readonly AliasEntry[], dimension: FilterDimension) => {
+    for (const entry of entries) {
+      add(entry.id, { dimension, id: entry.id, exactId: true });
+      for (const alias of entry.aliases?.[locale] ?? []) {
+        add(alias, { dimension, id: entry.id, exactId: false });
+      }
+    }
+  };
 
-export function parseSearchQuery(input: string, taxonomy?: { sectionTypes?: Array<{ id: string; aliases?: { en: string[] } }>; industries?: Array<{ id: string; aliases?: { en: string[] } }>; styles?: Array<{ id: string; aliases?: { en: string[] } }> }): SearchParserResult {
-  const query = input.trim();
-  const filters: SearchParserResult["filters"] = {};
-  const tokens = query.split(/\s+/).filter(Boolean);
+  addTaxonomy(taxonomy.sectionTypes, "sectionTypeId");
+  addTaxonomy(taxonomy.industries, "industryId");
+  addTaxonomy(taxonomy.styles, "styleId");
+
+  for (const shortcut of shortcutVocabulary) {
+    for (const alias of shortcut.aliases) {
+      // Only the canonical id counts as an exact match; "arabic websites" is a
+      // phrase that happens to name the `ar` language, not the id itself.
+      add(alias, { dimension: shortcut.dimension, id: shortcut.id, exactId: normalizeSearchTerm(shortcut.id) === normalizeSearchTerm(alias) });
+    }
+  }
+
+  return lookup;
+}
+
+/**
+ * Deterministic, taxonomy-driven inference — no LLM, no network, no state.
+ *
+ * The query is scanned left to right, and at each position the longest phrase
+ * that matches any known alias is consumed. Consuming phrases rather than single
+ * words is what makes multi-word aliases ("value proposition", "software as a
+ * service", "call to action") work; scanning longest-first is what stops
+ * "arabic websites" from being read as the bare "arabic".
+ *
+ * Anything no alias claims is returned, in its original spelling and order, as
+ * `q` — the caller never loses the user's words just because it recognised some
+ * of them.
+ */
+export function parseSearchQuery(
+  input: string,
+  taxonomy: SearchTaxonomy = defaultTaxonomy,
+  locale: Locale = "en",
+): SearchParserResult {
+  const lookup = buildAliasLookup(taxonomy, locale);
+  // Matching happens on normalized words, but the leftover free text keeps the
+  // user's own spelling and order — recognising some of their words must not
+  // quietly rewrite the rest of their query.
+  const words = input.trim().split(/\s+/).filter((word) => normalizeSearchTerm(word) !== "");
+  const normalizedWords = words.map(normalizeSearchTerm);
+  const filters: SearchFilters = {};
   const remaining: string[] = [];
 
-  const syntax = {
-    sectionTypes: taxonomy?.sectionTypes ?? SECTION_TYPES,
-    industries: taxonomy?.industries ?? INDUSTRIES,
-    styles: taxonomy?.styles ?? STYLES,
-  };
+  for (let index = 0; index < words.length; ) {
+    let matched: Candidate | undefined;
+    let matchedLength = 0;
 
-  const sectionTypeAliases = createAliasMap(syntax.sectionTypes);
-  const industryAliases = createAliasMap(syntax.industries);
-  const styleAliases = createAliasMap(syntax.styles);
+    for (let length = Math.min(MAX_ALIAS_WORDS, words.length - index); length >= 1; length -= 1) {
+      const candidate = lookup.get(normalizedWords.slice(index, index + length).join(" "));
+      if (candidate) {
+        matched = candidate;
+        matchedLength = length;
+        break;
+      }
+    }
 
-  for (const token of tokens) {
-    const normalizedToken = normalize(token);
-    const sectionId = sectionTypeAliases.get(normalizedToken);
-    const industryId = industryAliases.get(normalizedToken);
-    const styleId = styleAliases.get(normalizedToken);
-
-    if (sectionId) {
-      filters.sectionTypeId ??= sectionId;
+    if (matched) {
+      recordFilter(filters, matched);
+      index += matchedLength;
       continue;
     }
 
-    if (industryId) {
-      filters.industryId ??= industryId;
-      continue;
-    }
-
-    if (styleId) {
-      filters.styleId ??= styleId;
-      continue;
-    }
-
-    const language = languageAliases.get(normalizedToken);
-    if (language) {
-      filters.language = language;
-      continue;
-    }
-
-    const direction = directionAliases.get(normalizedToken);
-    if (direction) {
-      filters.direction = direction;
-      continue;
-    }
-
-    const device = deviceAliases.get(normalizedToken);
-    if (device) {
-      filters.device = device;
-      continue;
-    }
-
-    if (normalizedToken === "saas" || normalizedToken === "software as a service") {
-      filters.industryId = "saas";
-      continue;
-    }
-
-    if (normalizedToken === "ecommerce" || normalizedToken === "e commerce" || normalizedToken === "online store") {
-      filters.industryId = "ecommerce";
-      continue;
-    }
-
-    remaining.push(token);
+    remaining.push(words[index]);
+    index += 1;
   }
 
-  if (!filters.sectionTypeId) {
-    filters.sectionTypeId = sectionTypeAliases.get(normalize(query));
-  }
-
-  if (!filters.industryId) {
-    filters.industryId = industryAliases.get(normalize(query));
-  }
-
-  if (!filters.styleId) {
-    filters.styleId = styleAliases.get(normalize(query));
-  }
-
-  const q = remaining.join(" ").trim();
-
-  return {
-    q,
-    filters,
-  };
+  return { q: remaining.join(" ").trim(), filters };
 }

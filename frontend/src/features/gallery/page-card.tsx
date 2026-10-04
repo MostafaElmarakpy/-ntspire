@@ -1,11 +1,14 @@
 "use client";
 
 import Image from "next/image";
+import { DevArabicMarker } from "@/components/dev-arabic-marker";
+import type { SupportedLocale } from "@/i18n/config";
 import type { PageCardData } from "./types";
 
-export function PageCard({ card }: { card: PageCardData }) {
+export function PageCard({ card, locale }: { card: PageCardData; locale: SupportedLocale }) {
   return (
-    <article id={`card-${card.id}`} className="overflow-hidden rounded-md border border-border bg-card">
+    <article id={`card-${card.id}`} className="relative overflow-hidden rounded-md border border-border bg-card">
+      <DevArabicMarker isArabic={card.isArabic} locale={locale} />
       <Image
         src={card.image.src}
         alt={card.image.alt}

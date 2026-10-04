@@ -34,7 +34,17 @@ export interface SectionService {
   getSimilar(id: ID, limit?: number): Promise<Section[]>;
 }
 
+export type SearchSuggestionKind = "sectionType" | "industry" | "style" | "source";
+
+export interface SearchSuggestion {
+  kind: SearchSuggestionKind;
+  /** Taxonomy id, or the source id when `kind` is `source`. */
+  id: string;
+  /** `label` is only set for data-backed entries (sources have a name, not a label key). */
+  label?: string;
+}
+
 export interface SearchService {
   search(request: SearchRequest): Promise<SearchResult<Section>>;
-  suggest?(request: { q?: string; limit?: number }): Promise<string[]>;
+  suggest?(request: { q?: string; limit?: number }): Promise<SearchSuggestion[]>;
 }

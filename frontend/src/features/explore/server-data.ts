@@ -47,6 +47,7 @@ export function toExplorePageData(
       tagsLabel: t(locale, "explore.referenceTags"),
       tags: section.tags,
       language: t(locale, LANGUAGES.find((entry) => entry.id === section.language)!.labelKey),
+      isArabic: section.language === "ar",
       direction: t(locale, DIRECTIONS.find((entry) => entry.id === section.direction)!.labelKey),
       devices: crops.map((entry) => t(locale, DEVICES.find((device) => device.id === entry.device)!.labelKey)),
       image: {

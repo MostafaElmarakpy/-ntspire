@@ -40,3 +40,92 @@ describe("parseSearchQuery", () => {
     expect(result.q).toContain("brand");
   });
 });
+
+describe("parseSearchQuery edge cases", () => {
+  it("returns no filters and no free text for empty or whitespace-only input", () => {
+    for (const input of ["", "   ", "\n\t  "]) {
+      const result = parseSearchQuery(input);
+      expect(result.filters).toEqual({});
+      expect(result.q).toBe("");
+    }
+  });
+
+  it("keeps a query that names no known taxonomy value entirely as free text", () => {
+    const result = parseSearchQuery("unknown brand zzz");
+
+    expect(result.filters).toEqual({});
+    expect(result.q).toBe("unknown brand zzz");
+  });
+
+  it("is case-insensitive", () => {
+    expect(parseSearchQuery("ARABIC SaaS HeRo").filters).toMatchObject({
+      language: "ar",
+      industryId: "saas",
+      sectionTypeId: "hero",
+    });
+  });
+
+  it("treats hyphens and underscores as word breaks, so e-commerce and ecommerce agree", () => {
+    const hyphenated = parseSearchQuery("e-commerce navbar");
+    const joined = parseSearchQuery("ecommerce navbar");
+
+    expect(hyphenated.filters).toMatchObject({ industryId: "ecommerce", sectionTypeId: "navbar" });
+    expect(joined.filters).toEqual(hyphenated.filters);
+  });
+
+  it("matches multi-word aliases as a unit instead of one word at a time", () => {
+    expect(parseSearchQuery("value proposition").filters.sectionTypeId).toBe("value_proposition");
+    expect(parseSearchQuery("logo cloud").filters.sectionTypeId).toBe("logo_cloud");
+    expect(parseSearchQuery("call to action").filters.sectionTypeId).toBe("cta");
+    expect(parseSearchQuery("above the fold").filters.sectionTypeId).toBe("hero");
+    expect(parseSearchQuery("social proof").filters.sectionTypeId).toBe("testimonials");
+    expect(parseSearchQuery("software as a service").filters.industryId).toBe("saas");
+  });
+
+  it("prefers the longest overlapping alias rather than splitting it", () => {
+    const result = parseSearchQuery("arabic websites hero");
+
+    expect(result.filters).toMatchObject({ language: "ar", sectionTypeId: "hero" });
+    expect(result.q).toBe("");
+  });
+
+  it("prefers the most specific valid taxonomy match", () => {
+    // "Finance" is both an alias of `fintech` and the id of the `finance`
+    // industry. The entry whose id it actually is has the better claim.
+    expect(parseSearchQuery("finance").filters.industryId).toBe("finance");
+    expect(parseSearchQuery("fintech").filters.industryId).toBe("fintech");
+  });
+
+  it("resolves a repeated term once and never flips the earlier decision", () => {
+    const result = parseSearchQuery("hero hero hero");
+
+    expect(result.filters).toEqual({ sectionTypeId: "hero" });
+    expect(result.q).toBe("");
+  });
+
+  it("drops recognised words from the free text and keeps the rest in order", () => {
+    const result = parseSearchQuery("minimal pricing landing page");
+
+    expect(result.filters).toMatchObject({ styleId: "minimal", sectionTypeId: "pricing" });
+    expect(result.q).toBe("landing page");
+  });
+
+  it("leaves the unrecognised part of the query in the user's own casing", () => {
+    const result = parseSearchQuery("Hero Landing Page for Acme");
+
+    expect(result.filters.sectionTypeId).toBe("hero");
+    expect(result.q).toBe("Landing Page for Acme");
+  });
+
+  it("reads Arabic aliases out of the taxonomy without a code change", () => {
+    // Phase 11 fills `aliases.ar`; the parser must honour it from data alone.
+    const taxonomy = {
+      sectionTypes: [{ id: "hero", aliases: { en: ["Hero"], ar: ["واجهة"] } }],
+      industries: [],
+      styles: [],
+    };
+
+    expect(parseSearchQuery("واجهة", taxonomy, "ar").filters.sectionTypeId).toBe("hero");
+    expect(parseSearchQuery("واجهة", taxonomy, "en").filters.sectionTypeId).toBeUndefined();
+  });
+});

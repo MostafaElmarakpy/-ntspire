@@ -8,6 +8,8 @@ export interface ExploreCardData {
   tagsLabel: string;
   tags: string[];
   language: string;
+  /** Derived from the domain `language` id. Feeds the dev-only Arabic marker; no fixture data involved. */
+  isArabic: boolean;
   direction: string;
   devices: string[];
   image: {

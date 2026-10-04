@@ -275,6 +275,29 @@ taxonomy; the mobile filter sheet applies draft state, and browser history
 restores state from the URL. Explore, Sections, and the Mobile query shortcut
 are now enabled in navigation.
 
+Explore's controls are a persistent sidebar rather than a page-header plus a
+horizontal bar (scoped correction, `bug-fix.md` BUG-006). `explore-sidebar.tsx`
+owns the whole control surface: a Discover section for the reference types this
+app actually has (Website, Sections, Mobile), an always-open Industry list, and
+one collapsible group per remaining filter. Each entry shows the live count from
+the facets the current result set already returns, and "All" shows the filtered
+total, so no extra request is needed to render the counts. Groups that carry an
+applied value render expanded, so a filter restored from the URL is never hidden
+behind a collapsed heading. `explore-filters.tsx` is only the responsive
+container: `ExploreFilters` mounts the same sidebar in a sticky desktop column at
+`lg` and above, and `ExploreFilterSheet` mounts it unchanged inside the existing
+bottom Sheet below `lg`, keeping the draft/apply step. Sort and the result count
+stay in the results toolbar because they order results rather than filter them,
+and the masonry grid, URL state serializer, chips, and SearchService are
+untouched by the correction. The page keeps a visually hidden `h1` so removing
+the visible "Explore references" header does not cost the document its top-level
+heading. The Discover "Website" entry is the Sources index destination, which
+Phase 07 has not built yet, so it renders disabled from
+`ROUTE_AVAILABILITY.websites` with a visible "Soon" badge — a disabled entry with
+no marker reads as broken rather than unbuilt — and becomes a real link when that
+route is enabled. The navbar Search control is unchanged; the search overlay
+remains Phase 06.
+
 ## Future Integration Boundary
 
 The frontend must be replaceable from:

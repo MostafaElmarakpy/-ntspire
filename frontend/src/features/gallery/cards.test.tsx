@@ -24,6 +24,7 @@ const sectionCard = (overrides: Partial<SectionCardData> = {}): SectionCardData 
   tags: ["editorial", "serif", "high-contrast", "full-bleed", "minimal"],
   tagsLabel: "Reference tags",
   language: "English",
+  isArabic: false,
   devices: ["desktop", "mobile"],
   devicesLabel: "Desktop and mobile",
   image,
@@ -35,6 +36,7 @@ const pageCard = (overrides: Partial<PageCardData> = {}): PageCardData => ({
   title: "Northwind Ledger — Home",
   sourceName: "Northwind Ledger",
   language: "English",
+  isArabic: false,
   direction: "Left to right",
   devicesLabel: "Desktop and mobile",
   sectionCount: 6,
@@ -48,6 +50,7 @@ const sourceCard = (overrides: Partial<SourceCardData> = {}): SourceCardData => 
   name: "Northwind Ledger",
   description: "A business daily with a dense editorial grid.",
   industry: "News",
+  isArabic: false,
   pageCount: 3,
   pageCountLabel: "pages",
   image,
@@ -108,11 +111,23 @@ describe("SectionCard", () => {
     expect(screen.getByRole("button", { name: "Save reference" })).toHaveAttribute("aria-pressed", "false");
     expect(screen.getByRole("link", { name: "Open reference: Editorial hero with an oversized serif headline" })).toHaveAttribute("href", "#card-section-1");
   });
+
+  it("marks an Arabic reference with the dev-only Arabic chip", () => {
+    render(<SectionCard card={sectionCard({ isArabic: true })} locale="en" openHref="#card-section-1" />);
+
+    expect(screen.getByText("AR")).toBeVisible();
+  });
+
+  it("leaves a reference that is not Arabic unmarked", () => {
+    render(<SectionCard card={sectionCard()} locale="en" openHref="#card-section-1" />);
+
+    expect(screen.queryByText("AR")).not.toBeInTheDocument();
+  });
 });
 
 describe("PageCard and SourceCard", () => {
   it("renders a page reference with its source, language, direction and device availability", () => {
-    render(<PageCard card={pageCard()} />);
+    render(<PageCard card={pageCard()} locale="en" />);
 
     expect(screen.getByRole("heading", { name: "Northwind Ledger — Home" })).toBeVisible();
     expect(screen.getByText("Northwind Ledger")).toBeVisible();
@@ -122,7 +137,7 @@ describe("PageCard and SourceCard", () => {
   });
 
   it("renders a website reference card without save or open actions", () => {
-    render(<SourceCard card={sourceCard()} />);
+    render(<SourceCard card={sourceCard()} locale="en" />);
 
     expect(screen.getByRole("heading", { name: "Northwind Ledger" })).toBeVisible();
     expect(screen.getByText("News")).toBeVisible();

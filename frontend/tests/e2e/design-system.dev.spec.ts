@@ -5,6 +5,17 @@ import { expectAccessible } from "./axe-helper";
 
 const screenshotsDirectory = path.resolve(process.cwd(), "../docs/phase-reports/screenshots");
 
+/**
+ * The captured screenshots must be byte-stable across runs. The design-system
+ * page renders `SectionSkeleton`, whose `animate-pulse` changes opacity over
+ * time, so a capture could land anywhere in the cycle and every e2e run would
+ * rewrite the PNGs with slightly different pixels. `globals.css` already rests
+ * animations under `prefers-reduced-motion`, so asking Playwright to emulate it
+ * makes the capture deterministic. Scoped to this file so no other spec's
+ * assertions are affected.
+ */
+test.use({ reducedMotion: "reduce" });
+
 test("design-system catalogue is usable, responsive, and accessible", async ({ cleanPage }, testInfo) => {
   await cleanPage.goto("/en/dev/design-system");
   await expect(cleanPage.getByRole("heading", { name: "Design system", level: 1 })).toBeVisible();

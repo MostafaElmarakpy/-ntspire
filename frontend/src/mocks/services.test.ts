@@ -18,4 +18,14 @@ describe("mock services", () => {
     await expect(mockSearchService.search({ mockQuery: "?__mock=error" })).rejects.toThrow("forced error");
     vi.unstubAllEnvs();
   });
+
+  it("suggests over the taxonomy and sources the search itself reads", async () => {
+    await expect(mockSearchService.suggest?.({ q: "flowbase" })).resolves.toContainEqual({
+      kind: "source",
+      id: "source-flowbase",
+      label: "Flowbase",
+    });
+    await expect(mockSearchService.suggest?.({ q: "hero", limit: 1 })).resolves.toHaveLength(1);
+    await expect(mockSearchService.suggest?.({ q: "zzzzz" })).resolves.toEqual([]);
+  });
 });

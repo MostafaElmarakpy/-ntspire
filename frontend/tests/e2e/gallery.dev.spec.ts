@@ -76,6 +76,25 @@ test("dev gallery renders the full mock dataset in a waterfall grid", async ({ c
   await expect(cleanPage.getByRole("region", { name: "Source references" }).locator("article")).toHaveCount(manifest.sources.length);
 });
 
+test("Arabic references carry the temporary dev-only marker", async ({ cleanPage }) => {
+  await cleanPage.goto("/en/dev/gallery");
+  await expect(sectionCards(cleanPage).first()).toBeVisible();
+
+  const markers = cleanPage.getByText("AR", { exact: true });
+  const marked = await markers.count();
+  const totalCards = await cleanPage.locator("article").count();
+
+  // The fixtures hold both English and Arabic references, so the marker must hit
+  // some cards but never all of them — a marker on every card would mean the
+  // `isArabic` derivation collapsed to always-true.
+  expect(marked).toBeGreaterThan(0);
+  expect(marked).toBeLessThan(totalCards);
+
+  // The marker overlays the card instead of sitting in normal flow, so it cannot
+  // change any card's measured height (the Phase 04 overlay rule).
+  await expect(markers.first()).toHaveCSS("position", "absolute");
+});
+
 test("the highest-ranked references fill the top row in ranking order", async ({ cleanPage }) => {
   await openGallery(cleanPage, 1440);
 

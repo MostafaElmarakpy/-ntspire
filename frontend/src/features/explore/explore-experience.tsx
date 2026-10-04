@@ -5,7 +5,7 @@ import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EmptyState, SectionSkeleton } from "@/components/content-states";
 import { ErrorState } from "@/components/error-state";
-import { ExploreFilters } from "@/features/explore/explore-filters";
+import { ExploreFilterSheet, ExploreFilters } from "@/features/explore/explore-filters";
 import { trackExploreDeviceView, trackExploreFilterApplied } from "@/features/explore/analytics";
 import { FILTER_LABELS, getExploreFilterLabel, type FilterKey } from "@/features/explore/filter-options";
 import { MasonryGrid } from "@/features/gallery/masonry-grid";
@@ -54,6 +54,32 @@ interface ActiveChip {
   key: keyof ExploreState;
   label: string;
   value: string;
+}
+
+/** Sort stays in the results toolbar rather than the sidebar: it orders, it does not filter. */
+function ExploreSortControl({
+  locale,
+  state,
+  onChange,
+}: {
+  locale: SupportedLocale;
+  state: ExploreState;
+  onChange: (state: ExploreState) => void;
+}) {
+  return (
+    <label htmlFor="explore-sort" className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+      <span>{t(locale, "explore.sortLabel")}</span>
+      <select
+        id="explore-sort"
+        value={state.sortBy ?? "latest"}
+        onChange={(event) => onChange({ ...state, sortBy: event.currentTarget.value === "featured" ? "featured" : undefined })}
+        className="min-h-10 rounded-md border border-input bg-background px-3 text-sm text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+      >
+        <option value="latest">{t(locale, "explore.sortLatest")}</option>
+        <option value="featured">{t(locale, "explore.sortFeatured")}</option>
+      </select>
+    </label>
+  );
 }
 
 export function ExploreExperience({ locale, state, initialData, initialError }: ExploreExperienceProps) {
@@ -186,87 +212,98 @@ export function ExploreExperience({ locale, state, initialData, initialError }: 
   );
 
   return (
-    <section className="space-y-6" aria-labelledby="explore-title">
-      <header className="flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="mb-2 text-xs font-semibold uppercase text-primary">{t(locale, "explore.eyebrow")}</p>
-          <h1 id="explore-title" className="font-serif text-4xl leading-tight sm:text-5xl">{t(locale, "explore.title")}</h1>
-          <p className="mt-3 max-w-2xl text-sm text-muted-foreground">{t(locale, "explore.description")}</p>
-        </div>
-        <div className="sm:pb-1">{count}</div>
-      </header>
+    <div className="space-y-6">
+      {/*
+        The visible "Explore references" header was replaced by the sidebar's
+        Discover section. The heading stays in the document, visually hidden, so
+        the page keeps a single top-level heading for assistive technology and
+        search engines.
+      */}
+      <h1 className="sr-only">{t(locale, "explore.title")}</h1>
 
-      <ExploreFilters locale={locale} state={activeState} facets={facets} onChange={navigateToState} />
+      <div className="grid gap-8 lg:grid-cols-[17rem_minmax(0,1fr)] lg:gap-10">
+        <ExploreFilters locale={locale} state={activeState} facets={facets} total={total} onChange={navigateToState} />
 
-      {activeChips.length > 0 ? (
-        <div className="flex flex-wrap items-center gap-2" role="region" aria-label={t(locale, "explore.activeFilters")}>
-          {activeChips.map((chip) => (
-            <button
-              key={chip.key}
-              type="button"
-              aria-label={`${t(locale, "explore.removeFilter")} ${chip.label}: ${chip.value}`}
-              onClick={() => removeChip(chip.key)}
-              className="inline-flex min-h-10 items-center gap-2 rounded-full border border-border bg-card px-3 text-sm hover:bg-secondary focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              <span>{chip.label}: {chip.value}</span>
-              <X className="size-4" aria-hidden="true" />
-            </button>
-          ))}
-          <Button type="button" variant="ghost" className="min-h-10" onClick={() => navigateToState({})}>
-            {t(locale, "explore.clearFilters")}
-          </Button>
-        </div>
-      ) : null}
+        <div className="min-w-0 space-y-6">
+          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border pb-4">
+            <div className="flex flex-wrap items-center gap-3">
+              <ExploreFilterSheet locale={locale} state={activeState} facets={facets} total={total} onChange={navigateToState} />
+              {count}
+            </div>
+            <ExploreSortControl locale={locale} state={activeState} onChange={navigateToState} />
+          </div>
 
-      {loading ? (
-        <MasonrySkeleton label={`${t(locale, "explore.title")} — ${t(locale, "ui.loading")}`} />
-      ) : pageError ? (
-        <ErrorState
-          title={t(locale, "explore.errorTitle")}
-          description={t(locale, "explore.errorDescription")}
-          retryLabel={t(locale, "ui.retry")}
-          onRetry={() => void loadResults(activeState, undefined, true)}
-        />
-      ) : items.length === 0 ? (
-        <div className="flex flex-col items-center gap-4">
-          <EmptyState title={t(locale, "explore.emptyTitle")} description={t(locale, "explore.emptyDescription")} />
-          <Button type="button" variant="outline" className="min-h-11" onClick={() => navigateToState({})}>
-            {t(locale, "explore.clearFilters")}
-          </Button>
-        </div>
-      ) : (
-        <>
-          <MasonryGrid
-            items={items}
-            getKey={(card) => card.id}
-            heightEstimator={(card) => estimateMasonryHeight(card.image)}
-            renderItem={(card, { priority }) => <ExploreSectionCard card={card} priority={priority} />}
-            label={t(locale, "explore.resultsLabel")}
-          />
-          {loadMoreError ? (
+          {activeChips.length > 0 ? (
+            <div className="flex flex-wrap items-center gap-2" role="region" aria-label={t(locale, "explore.activeFilters")}>
+              {activeChips.map((chip) => (
+                <button
+                  key={chip.key}
+                  type="button"
+                  aria-label={`${t(locale, "explore.removeFilter")} ${chip.label}: ${chip.value}`}
+                  onClick={() => removeChip(chip.key)}
+                  className="inline-flex min-h-10 items-center gap-2 rounded-full border border-border bg-card px-3 text-sm hover:bg-secondary focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <span>{chip.label}: {chip.value}</span>
+                  <X className="size-4" aria-hidden="true" />
+                </button>
+              ))}
+              <Button type="button" variant="ghost" className="min-h-10" onClick={() => navigateToState({})}>
+                {t(locale, "explore.clearFilters")}
+              </Button>
+            </div>
+          ) : null}
+
+          {loading ? (
+            <MasonrySkeleton label={`${t(locale, "explore.title")} — ${t(locale, "ui.loading")}`} />
+          ) : pageError ? (
             <ErrorState
               title={t(locale, "explore.errorTitle")}
               description={t(locale, "explore.errorDescription")}
               retryLabel={t(locale, "ui.retry")}
-              onRetry={loadMore}
+              onRetry={() => void loadResults(activeState, undefined, true)}
             />
-          ) : null}
-          {loadingMore ? (
-            <div className="mx-auto max-w-md" role="status" aria-label={t(locale, "ui.loading")}>
-              <SectionSkeleton width={1440} height={640} locale={locale} />
-            </div>
-          ) : null}
-          {nextCursor ? (
-            <div className="flex justify-center">
-              <Button type="button" variant="outline" className="min-h-11 px-6" onClick={loadMore} disabled={loadingMore}>
-                {t(locale, "explore.loadMore")}
+          ) : items.length === 0 ? (
+            <div className="flex flex-col items-center gap-4">
+              <EmptyState title={t(locale, "explore.emptyTitle")} description={t(locale, "explore.emptyDescription")} />
+              <Button type="button" variant="outline" className="min-h-11" onClick={() => navigateToState({})}>
+                {t(locale, "explore.clearFilters")}
               </Button>
             </div>
           ) : (
-            <p className="py-3 text-center text-sm text-muted-foreground">{t(locale, "explore.endOfResults")}</p>
+            <>
+              <MasonryGrid
+                items={items}
+                getKey={(card) => card.id}
+                heightEstimator={(card) => estimateMasonryHeight(card.image)}
+                renderItem={(card, { priority }) => <ExploreSectionCard card={card} locale={locale} priority={priority} />}
+                label={t(locale, "explore.resultsLabel")}
+              />
+              {loadMoreError ? (
+                <ErrorState
+                  title={t(locale, "explore.errorTitle")}
+                  description={t(locale, "explore.errorDescription")}
+                  retryLabel={t(locale, "ui.retry")}
+                  onRetry={loadMore}
+                />
+              ) : null}
+              {loadingMore ? (
+                <div className="mx-auto max-w-md" role="status" aria-label={t(locale, "ui.loading")}>
+                  <SectionSkeleton width={1440} height={640} locale={locale} />
+                </div>
+              ) : null}
+              {nextCursor ? (
+                <div className="flex justify-center">
+                  <Button type="button" variant="outline" className="min-h-11 px-6" onClick={loadMore} disabled={loadingMore}>
+                    {t(locale, "explore.loadMore")}
+                  </Button>
+                </div>
+              ) : (
+                <p className="py-3 text-center text-sm text-muted-foreground">{t(locale, "explore.endOfResults")}</p>
+              )}
+            </>
           )}
-        </>
-      )}
-    </section>
+        </div>
+      </div>
+    </div>
   );
 }

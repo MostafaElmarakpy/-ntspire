@@ -1,5 +1,6 @@
 import { applyMockConfig } from "@/config/mock-config";
 import { getSimilarSections, querySections } from "@/lib/query-engine";
+import { buildSuggestions } from "@/lib/search-suggestions";
 import { MOCK_FIXTURE } from "@/mocks/fixtures";
 import { Page, Section, Source } from "@/types/domain";
 import { PageService, SearchRequest, SearchService, SectionService, SourceService } from "@/types/services";
@@ -35,6 +36,11 @@ const searchService: SearchService = {
       total: 0,
       facets: { sectionTypes: {}, industries: {}, styles: {}, languages: {}, devices: {}, directions: {}, themes: {}, sources: {} },
     });
+  },
+  // Suggestions rank the same taxonomy the parser reads, so a suggested term is
+  // always a term the search itself understands.
+  async suggest({ q, limit }) {
+    return applyMockConfig(() => buildSuggestions(q ?? "", MOCK_FIXTURE.sources, limit), undefined, []);
   },
 };
 

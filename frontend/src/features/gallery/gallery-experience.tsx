@@ -35,7 +35,7 @@ export function GalleryExperience({ locale, data }: GalleryExperienceProps) {
           items={data.pages}
           getKey={(card) => card.id}
           heightEstimator={(card) => estimateMasonryHeight(card.image)}
-          renderItem={(card) => <PageCard card={card} />}
+          renderItem={(card) => <PageCard card={card} locale={locale} />}
           label={t(locale, "gallery.pagesLabel")}
         />
       </section>
@@ -46,7 +46,7 @@ export function GalleryExperience({ locale, data }: GalleryExperienceProps) {
           items={data.sources}
           getKey={(card) => card.id}
           heightEstimator={(card) => estimateMasonryHeight(card.image)}
-          renderItem={(card) => <SourceCard card={card} />}
+          renderItem={(card) => <SourceCard card={card} locale={locale} />}
           label={t(locale, "gallery.sourcesLabel")}
         />
       </section>

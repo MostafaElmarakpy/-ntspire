@@ -59,6 +59,39 @@ history restoration. Phase 06 should reuse this service and serializer; do not
 create a second result/query path. Search overlay, suggestions, and inference
 remain deferred.
 
+## Explore sidebar correction
+
+Explore's controls were moved from a page header plus a horizontal dropdown bar
+into a persistent sidebar (`bug-fix.md` BUG-006, `ARCHITECTURE.md` "Phase 05
+Explore"). `frontend/src/features/explore/explore-sidebar.tsx` is the single
+filter surface; `explore-filters.tsx` only wraps it in a desktop `<aside>` or the
+existing mobile Sheet. Any future filter work should extend `EXPLORE_FILTERS` in
+`filter-options.ts` and let the sidebar pick it up — do not add a parallel
+control pattern. The Discover "Website" entry is wired to
+`ROUTE_AVAILABILITY.websites` — rendering disabled with a visible "Soon" badge
+until then — and Phase 07 should enable it once the Sources index route exists.
+
+## Temporary dev-only Arabic marker
+
+`frontend/src/components/dev-arabic-marker.tsx` renders a small "AR" chip on any
+reference card whose content is Arabic, across the dev gallery and Explore. It is
+a **temporary QA aid, not a product feature**: Arabic mock content has existed
+since Phase 02, but the UI stays English/LTR until Phase 11, so this only exists
+to make that content findable while reviewing the two gallery surfaces by eye.
+
+It renders only when `NODE_ENV !== "production"` — the same guard style as the
+`/dev/*` routes, with no new flag system — it overlays the card without
+affecting its height or the masonry placement, and it is `aria-hidden`, so it
+changes nothing a screen reader announces. It reads no fixture, taxonomy, or
+filter state: each card carries an `isArabic` flag derived from that record's own
+domain `language`, and sources (which have no language of their own) count as
+Arabic when any of their pages is.
+
+**Remove it once the Arabic content review is complete, or when Phase 11 ships
+the real Arabic UI and locale — whichever comes first.** That means deleting the
+component and its test, the `dev.arabicMarker` message key, the `isArabic` fields
+on the card data, and the two `AR`-chip e2e assertions.
+
 ## Deliberately deferred
 
 - Arabic UI, RTL rendering, Arabic aliases, and `/ar` are Phase 11 work. Arabic
