@@ -1,0 +1,80 @@
+npm notice run ntspire-frontend@0.1.0 npx
+npm notice run playwright test detail.spec.ts --project=desktop --reporter=list
+[WebServer] npm notice run ntspire-frontend@0.1.0 build
+[WebServer] npm notice run next build
+[WebServer] npm notice run ntspire-frontend@0.1.0 start
+[WebServer] npm notice run next start --port 3100
+
+Running 13 tests using 4 workers
+
+  ✓   2 [desktop] › tests\e2e\detail.spec.ts:61:1 › the index routes list what the library holds and link into it (1.6s)
+  ✓   4 [desktop] › tests\e2e\detail.spec.ts:88:1 › an unknown section id, page slug or source slug is a real 404 (1.6s)
+  ✓   1 [desktop] › tests\e2e\detail.spec.ts:139:1 › related sections link to their own detail pages (1.9s)
+  ✓   6 [desktop] › tests\e2e\detail.spec.ts:191:1 › a page detail highlights each section's region for the device being shown (686ms)
+  ✓   5 [desktop] › tests\e2e\detail.spec.ts:156:1 › the device switcher shows each device's own capture and disables the one never taken (928ms)
+  ✓   9 [desktop] › tests\e2e\detail.spec.ts:319:1 › the desktop crop downloads under its own name (421ms)
+  ✓   7 [desktop] › tests\e2e\detail.spec.ts:241:1 › a source detail lists its pages and sections with their attribution (2.1s)
+  ✓  10 [desktop] › tests\e2e\detail.spec.ts:328:1 › Send to Figma says the integration is not connected and sends nothing (1.1s)
+  ✓  12 [desktop] › tests\e2e\detail.spec.ts:404:1 › the detail routes report loading, empty and error states from their mock modes (1.7s)
+  ✓  11 [desktop] › tests\e2e\detail.spec.ts:350:1 › every level of the flow links both up and down (1.9s)
+  ✘   3 [desktop] › tests\e2e\detail.spec.ts:100:1 › a section detail shows its provenance, metadata and every action (6.2s)
+  ✘   8 [desktop] › tests\e2e\detail.spec.ts:266:1 › card to detail to context to download and back keeps the reader's place (6.2s)
+  ✓  13 [desktop] › tests\e2e\detail.spec.ts:453:1 › every Phase 07 route is axe-clean and never scrolls sideways (5.7s)
+
+
+  1) [desktop] › tests\e2e\detail.spec.ts:100:1 › a section detail shows its provenance, metadata and every action 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: locator('dl > div').filter({ has: locator('dt').filter({ hasText: /^Source$/ }) }).locator('dd')
+    Expected: "Flowbase"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" locator('dl > div').filter({ has: locator('dt').filter({ hasText: /^Source$/ }) }).locator('dd') with timeout 5000ms
+      - waiting for locator('dl > div').filter({ has: locator('dt').filter({ hasText: /^Source$/ }) }).locator('dd')
+
+
+      113 |   await expect(crumbs.locator('[aria-current="page"]')).toHaveText("Everything in one connected workspace");
+      114 |
+    > 115 |   await expect(factValue(cleanPage, "Source")).toHaveText("Flowbase");
+          |                                                ^
+      116 |   await expect(factValue(cleanPage, "Language")).toHaveText("English");
+      117 |   await expect(factValue(cleanPage, "Direction")).toHaveText("Left to right");
+      118 |   await expect(factValue(cleanPage, "Devices")).toHaveText("Desktop and mobile");
+        at D:\Software\Project\Full Stack\ntspire\frontend\tests\e2e\detail.spec.ts:115:48
+
+    Error Context: test-results\detail-a-section-detail-sh-5af0e-e-metadata-and-every-action-desktop\error-context.md
+
+  2) [desktop] › tests\e2e\detail.spec.ts:266:1 › card to detail to context to download and back keeps the reader's place 
+
+    Error: expect(locator).toBeInViewport() failed
+
+    Locator:  getByTestId('context-highlight')
+    Expected: in viewport
+    Received: viewport ratio 0
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeInViewport" getByTestId('context-highlight') with timeout 5000ms
+      - waiting for getByTestId('context-highlight')
+        14 × locator resolved to <div aria-hidden="true" data-device="mobile" data-testid="context-highlight" class="pointer-events-none absolute rounded-sm border-2 border-primary bg-primary/20 outline-none"></div>
+           - unexpected value "viewport ratio 0"
+
+
+      286 |   // The band is scrolled into view rather than left below the fold, and the
+      287 |   // frame takes focus so the region is keyboard scrollable.
+    > 288 |   await expect(contextHighlight(cleanPage)).toBeInViewport({ ratio: 0.1 });
+          |                                             ^
+      289 |   await expect(scroller).toBeFocused();
+      290 |   const { scrollTop, scrollHeight, clientHeight } = await scroller.evaluate((element) => ({
+      291 |     scrollTop: element.scrollTop,
+        at D:\Software\Project\Full Stack\ntspire\frontend\tests\e2e\detail.spec.ts:288:45
+
+    Error Context: test-results\detail-card-to-detail-to-c-3198e-ck-keeps-the-reader-s-place-desktop\error-context.md
+
+  2 failed
+    [desktop] › tests\e2e\detail.spec.ts:100:1 › a section detail shows its provenance, metadata and every action 
+    [desktop] › tests\e2e\detail.spec.ts:266:1 › card to detail to context to download and back keeps the reader's place 
+  11 passed (30.9s)

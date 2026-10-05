@@ -2,10 +2,9 @@
 
 import { useId, useState, type ReactNode } from "react";
 import { ChevronDown } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { INDUSTRIES } from "@/config/taxonomy";
-import { ROUTE_AVAILABILITY } from "@/config/navigation";
+import { routeHref } from "@/config/navigation";
 import { t } from "@/i18n/messages";
 import type { SupportedLocale } from "@/i18n/config";
 import type { ExploreState } from "@/lib/explore-state";
@@ -156,7 +155,6 @@ export function ExploreSidebar({ locale, state, facets, total, onChange }: Explo
   // once, so every landmark label needs an id that is unique per instance.
   const idPrefix = useId();
   const groups = EXPLORE_FILTERS.filter((definition) => definition.key !== "industryId");
-  const websitesAvailable = ROUTE_AVAILABILITY.websites;
   const sectionsActive = !state.device;
   const mobileActive = state.device === "mobile";
 
@@ -168,32 +166,14 @@ export function ExploreSidebar({ locale, state, facets, total, onChange }: Explo
         </h2>
         <ul className="space-y-0.5">
           <li>
-            {websitesAvailable ? (
-              <a href={`/${locale}/websites`} className={optionClass(false)}>
-                {t(locale, "explore.discoverWebsite")}
-              </a>
-            ) : (
-              <button
-                type="button"
-                disabled
-                className={cn(
-                  optionClass(false),
-                  "cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-muted-foreground",
-                )}
-              >
-                <span className="min-w-0 truncate">{t(locale, "explore.discoverWebsite")}</span>
-                {/*
-                  A disabled entry with no visible marker reads as broken rather
-                  than "not built yet", so the badge is the sighted signal. The
-                  `sr-only` text carries the fuller meaning, which is why the
-                  badge itself stays out of the accessibility tree.
-                */}
-                <Badge variant="secondary" aria-hidden="true">
-                  {t(locale, "explore.soon")}
-                </Badge>
-                <span className="sr-only"> — {t(locale, "explore.notAvailableYet")}</span>
-              </button>
-            )}
+            {/*
+              The source library's index. Its href comes from the navigation
+              config, so the sidebar and the header can never disagree about
+              where "Websites" lives, and it is never a dead end.
+            */}
+            <a href={routeHref(locale, "websites")} className={optionClass(false)}>
+              <span className="min-w-0 truncate">{t(locale, "explore.discoverWebsite")}</span>
+            </a>
           </li>
           <li>
             <button

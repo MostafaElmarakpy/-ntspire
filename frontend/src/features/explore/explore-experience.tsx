@@ -10,14 +10,15 @@ import { trackExploreDeviceView, trackExploreFilterApplied } from "@/features/ex
 import { FILTER_LABELS, getExploreFilterLabel, type FilterKey } from "@/features/explore/filter-options";
 import { MasonryGrid } from "@/features/gallery/masonry-grid";
 import { MasonrySkeleton } from "@/features/gallery/masonry-skeleton";
+import { SectionCard } from "@/features/gallery/section-card";
+import type { SectionCardData } from "@/features/gallery/types";
 import { t } from "@/i18n/messages";
 import type { SupportedLocale } from "@/i18n/config";
 import { estimateMasonryHeight } from "@/lib/masonry";
 import type { ExploreState } from "@/lib/explore-state";
 import { parseExploreParams, serializeExploreParams } from "@/lib/explore-state";
 import type { SearchFacets } from "@/types/domain";
-import type { ExploreCardData, ExplorePageData } from "./types";
-import { ExploreSectionCard } from "./section-card";
+import type { ExplorePageData } from "./types";
 
 const FILTER_KEYS = Object.keys(FILTER_LABELS) as FilterKey[];
 
@@ -85,7 +86,7 @@ function ExploreSortControl({
 export function ExploreExperience({ locale, state, initialData, initialError }: ExploreExperienceProps) {
   const [activeState, setActiveState] = useState(state);
   const [loading, setLoading] = useState(false);
-  const [items, setItems] = useState<ExploreCardData[]>(initialData.items);
+  const [items, setItems] = useState<SectionCardData[]>(initialData.items);
   const [facets, setFacets] = useState<SearchFacets>(initialData.facets);
   const [total, setTotal] = useState(initialData.total);
   const [nextCursor, setNextCursor] = useState(initialData.nextCursor);
@@ -275,7 +276,14 @@ export function ExploreExperience({ locale, state, initialData, initialError }: 
                 items={items}
                 getKey={(card) => card.id}
                 heightEstimator={(card) => estimateMasonryHeight(card.image)}
-                renderItem={(card, { priority }) => <ExploreSectionCard card={card} locale={locale} priority={priority} />}
+                renderItem={(card, { priority }) => (
+                  <SectionCard
+                    card={card}
+                    locale={locale}
+                    openHref={`/${locale}/sections/${card.id}`}
+                    priority={priority}
+                  />
+                )}
                 label={t(locale, "explore.resultsLabel")}
               />
               {loadMoreError ? (

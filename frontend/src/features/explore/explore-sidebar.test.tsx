@@ -52,19 +52,22 @@ describe("Explore sidebar", () => {
     expect(discoverNav()).toBeVisible();
   });
 
-  it("lists the Discover reference types, with the Sources index disabled until its route exists", () => {
+  it("links the Discover reference types to the routes that now exist (P7-01)", () => {
     renderSidebar();
-    expect(within(discoverNav()).getByRole("button", { name: /^Website/ })).toBeDisabled();
+    const website = within(discoverNav()).getByRole("link", { name: "Website" });
+    expect(website).toHaveAttribute("href", "/en/sources");
     expect(within(discoverNav()).getByRole("button", { name: "Sections" })).toBeEnabled();
     expect(within(discoverNav()).getByRole("button", { name: "Mobile" })).toBeEnabled();
   });
 
-  it("marks the unavailable Sources index with a visible Soon badge, not just a disabled button", () => {
+  it("never renders a Discover entry that goes nowhere", () => {
     renderSidebar();
-    const website = within(discoverNav()).getByRole("button", { name: /^Website/ });
-    expect(website).toBeDisabled();
-    expect(within(website).getByText("Soon")).toBeVisible();
-    expect(website).toHaveAccessibleName(/Not available yet/);
+    const nav = discoverNav();
+    // No disabled placeholder and no "coming soon" marker survives Phase 07: the
+    // source library has a real index, so the entry is a link to it.
+    expect(within(nav).queryByText("Soon")).toBeNull();
+    expect(within(nav).queryByRole("button", { name: /Website/ })).toBeNull();
+    expect(within(nav).getByRole("link", { name: "Website" }).getAttribute("href")).not.toContain("/websites");
   });
 
   it("lists every Industry with its live facet count, and the total on All", () => {

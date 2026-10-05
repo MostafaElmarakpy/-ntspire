@@ -8,11 +8,11 @@ export type UserActionEntry = { id: "sign-in"; labelKey: "shell.signIn"; availab
 export const ROUTE_AVAILABILITY: Record<RouteKey, boolean> = {
   home: true,
   explore: true,
-  websites: false,
-  pages: false,
+  websites: true,
+  pages: true,
   sections: true,
   mobile: true,
-  categories: false,
+  categories: true,
   collections: false,
   profile: false,
 };
@@ -44,6 +44,9 @@ export function routeHref(locale: SupportedLocale, route: RouteKey): string {
   if (route === "home") return `/${locale}`;
   if (route === "mobile") return `/${locale}/explore?device=mobile`;
   if (route === "sections") return `/${locale}/explore`;
+  // "Websites" is the source library: the nav label is the reader's word for it,
+  // and `/sources` is the route that lists them.
+  if (route === "websites") return `/${locale}/sources`;
   return `/${locale}/${route}`;
 }
 

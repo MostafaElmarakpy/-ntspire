@@ -1,9 +1,7 @@
 import "server-only";
-import { getTaxonomyEntry, DEVICES, DIRECTIONS, LANGUAGES } from "@/config/taxonomy";
-import { MOCK_ASSETS, MOCK_SECTION_CROPS, MOCK_SOURCES } from "@/mocks/fixtures";
-import { t } from "@/i18n/messages";
+import { toSectionCard } from "@/features/gallery/card-model";
 import type { SupportedLocale } from "@/i18n/config";
-import type { SearchResult, Section, SearchFacets } from "@/types/domain";
+import type { SearchFacets, SearchResult, Section } from "@/types/domain";
 import type { ExplorePageData } from "./types";
 
 const emptyFacets = (): SearchFacets => ({
@@ -21,42 +19,22 @@ export function emptyExplorePageData(): ExplorePageData {
   return { items: [], total: 0, facets: emptyFacets() };
 }
 
+/**
+ * Explore renders the Phase 04 `SectionCard`, so its results are built by the
+ * same view-model builder the gallery and the detail pages use. The only
+ * Explore-specific input is which of a section's crops the card shows: a
+ * mobile-filtered search shows the mobile crop, and a section that has no mobile
+ * crop still shows its own desktop one.
+ */
 export function toExplorePageData(
   result: SearchResult<Section>,
   locale: SupportedLocale,
   preferredDevice?: "desktop" | "mobile",
 ): ExplorePageData {
   const items = result.items.map((section) => {
-    const crops = MOCK_SECTION_CROPS.filter((crop) => crop.sectionId === section.id);
-    const crop = crops.find((candidate) => candidate.device === preferredDevice)
-      ?? crops.find((candidate) => candidate.device === "desktop")
-      ?? crops[0];
-    const asset = MOCK_ASSETS.find((candidate) => candidate.id === crop?.renderedAssetId);
-    const source = MOCK_SOURCES.find((candidate) => candidate.id === section.sourceId);
-    const sectionType = getTaxonomyEntry("sectionType", section.sectionTypeId);
-
-    if (!crop || !asset || !source || !sectionType) {
-      throw new Error(`Explore data is incomplete for section ${section.id}`);
-    }
-
-    return {
-      id: section.id,
-      title: section.title,
-      sectionType: t(locale, sectionType.labelKey),
-      sourceName: source.name,
-      tagsLabel: t(locale, "explore.referenceTags"),
-      tags: section.tags,
-      language: t(locale, LANGUAGES.find((entry) => entry.id === section.language)!.labelKey),
-      isArabic: section.language === "ar",
-      direction: t(locale, DIRECTIONS.find((entry) => entry.id === section.direction)!.labelKey),
-      devices: crops.map((entry) => t(locale, DEVICES.find((device) => device.id === entry.device)!.labelKey)),
-      image: {
-        src: asset.url,
-        width: crop.width,
-        height: crop.height,
-        alt: `${source.name}: ${section.title}`,
-      },
-    };
+    const card = toSectionCard(section, locale, preferredDevice);
+    if (!card) throw new Error(`Explore data is incomplete for section ${section.id}`);
+    return card;
   });
 
   return {

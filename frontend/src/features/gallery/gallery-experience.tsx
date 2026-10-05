@@ -23,7 +23,9 @@ export function GalleryExperience({ locale, data }: GalleryExperienceProps) {
           items={data.sections}
           getKey={(card) => card.id}
           heightEstimator={(card) => estimateMasonryHeight(card.image)}
-          renderItem={(card, { priority }) => <SectionCard card={card} locale={locale} openHref={`#card-${card.id}`} priority={priority} />}
+          renderItem={(card, { priority }) => (
+            <SectionCard card={card} locale={locale} openHref={`/${locale}/sections/${card.id}`} priority={priority} />
+          )}
           label={t(locale, "gallery.sectionsLabel")}
           eagerRows={3}
         />
