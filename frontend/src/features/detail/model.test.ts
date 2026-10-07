@@ -127,8 +127,9 @@ describe("buildSectionDetail", () => {
     const detail = buildSectionDetail(BOTH_DEVICES_ID, "en")!;
     const labels = detail.facts.map((fact) => fact.label);
     expect(labels).toEqual([
-      "Language", "Direction", "Devices", "Industry", "Style", "Captured", "Attribution",
+      "Source", "Language", "Direction", "Devices", "Industry", "Style", "Captured", "Attribution",
     ]);
+    expect(detail.facts.find((fact) => fact.label === "Source")?.value).toBe(detail.sourceName);
     expect(detail.facts.find((fact) => fact.label === "Language")?.value).toBe("English");
     expect(detail.facts.find((fact) => fact.label === "Direction")?.value).toBe("Left to right");
     expect(detail.facts.find((fact) => fact.label === "Attribution")?.value).toBe(section(BOTH_DEVICES_ID).attribution);

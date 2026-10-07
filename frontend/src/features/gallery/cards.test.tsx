@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { SaveButton } from "@/components/save-button";
 import { configureSavedStore, resetSavedStore } from "@/lib/saved-store";
@@ -21,6 +21,8 @@ const sectionCard = (overrides: Partial<SectionCardData> = {}): SectionCardData 
   title: "Editorial hero with an oversized serif headline",
   sectionType: "Hero",
   sourceName: "Northwind Ledger",
+  sourceSlug: "northwind-ledger",
+  sourceInitial: "N",
   tags: ["editorial", "serif", "high-contrast", "full-bleed", "minimal"],
   tagsLabel: "Reference tags",
   language: "English",
@@ -68,29 +70,34 @@ afterEach(() => {
 });
 
 describe("SectionCard", () => {
-  it("renders at most three tags even when a section has more", () => {
-    render(<SectionCard card={sectionCard()} locale="en" openHref="#card-section-1" />);
+  it("keeps the caption to section type and source name", () => {
+    const { container } = render(<SectionCard card={sectionCard()} locale="en" openHref="#card-section-1" />);
 
-    const tags = screen.getAllByRole("listitem").map((item) => item.textContent);
-    expect(tags).toEqual(["editorial", "serif", "high-contrast"]);
-    expect(screen.queryByText("full-bleed")).not.toBeInTheDocument();
+    const caption = container.querySelector("article > div p");
+    expect(caption).toHaveTextContent("Hero");
+    expect(caption).toHaveTextContent("Northwind Ledger");
+    expect(caption).not.toHaveTextContent("editorial");
+    expect(screen.queryByRole("list", { name: "Reference tags" })).not.toBeInTheDocument();
   });
 
   it("keeps a long title on one line so the card cannot outgrow its column", () => {
     const title = "A very long editorial headline that would otherwise wrap across several lines";
-    render(<SectionCard card={sectionCard({ title })} locale="en" openHref="#card-section-1" />);
+    const { container } = render(<SectionCard card={sectionCard({ title })} locale="en" openHref="#card-section-1" />);
 
-    const heading = screen.getByRole("heading", { name: title });
-    expect(heading).toHaveClass("truncate");
+    expect(screen.getByRole("link", { name: `Open reference: ${title}` })).toBeInTheDocument();
+    expect(container.querySelector("article > div p")).toHaveClass("truncate");
   });
 
   it.each<{ devices: Device[]; devicesLabel: string }>([
     { devices: ["desktop", "mobile"], devicesLabel: "Desktop and mobile" },
     { devices: ["desktop"], devicesLabel: "Desktop only" },
     { devices: ["mobile"], devicesLabel: "Mobile only" },
-  ])("shows device availability as $devicesLabel", ({ devices, devicesLabel }) => {
-    render(<SectionCard card={sectionCard({ devices, devicesLabel })} locale="en" openHref="#card-section-1" />);
-    expect(screen.getByText(new RegExp(devicesLabel))).toBeVisible();
+  ])("keeps the slim caption independent of device availability ($devicesLabel)", ({ devices, devicesLabel }) => {
+    const { container } = render(<SectionCard card={sectionCard({ devices, devicesLabel })} locale="en" openHref="#card-section-1" />);
+    const caption = container.querySelector("article > div p");
+    expect(caption).toHaveTextContent("Hero");
+    expect(caption).toHaveTextContent("Northwind Ledger");
+    expect(caption).not.toHaveTextContent(devicesLabel);
   });
 
   it("renders an uncropped, naturally sized image", () => {
@@ -110,6 +117,37 @@ describe("SectionCard", () => {
     expect(screen.getByRole("group", { name: "Reference actions" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Save reference" })).toHaveAttribute("aria-pressed", "false");
     expect(screen.getByRole("link", { name: "Open reference: Editorial hero with an oversized serif headline" })).toHaveAttribute("href", "#card-section-1");
+    expect(screen.getByRole("button", { name: "Quick view image: Editorial hero with an oversized serif headline" })).toBeInTheDocument();
+  });
+
+  it("links the over-image source avatar to the source without bubbling to the card", () => {
+    const parentClick = vi.fn();
+    render(<div onClick={parentClick}><SectionCard card={sectionCard()} locale="en" openHref="#card-section-1" /></div>);
+
+    const sourceLink = screen.getByRole("link", { name: "View source: Northwind Ledger" });
+    expect(sourceLink).toHaveAttribute("href", "/en/sources/northwind-ledger");
+    expect(sourceLink).toHaveTextContent("N");
+    const click = new MouseEvent("click", { bubbles: true, cancelable: true });
+    click.preventDefault();
+    sourceLink.dispatchEvent(click);
+    expect(parentClick).not.toHaveBeenCalled();
+  });
+
+  it("keeps source and action overlays absolutely positioned outside the caption flow", () => {
+    render(<SectionCard card={sectionCard()} locale="en" openHref="#card-section-1" />);
+
+    expect(screen.getByRole("link", { name: "View source: Northwind Ledger" })).toHaveClass("absolute");
+    expect(screen.getByRole("group", { name: "Reference actions" })).toHaveClass("absolute");
+  });
+
+  it("opens an independent image-only Quick View lightbox", async () => {
+    render(<SectionCard card={sectionCard()} locale="en" openHref="#card-section-1" />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Quick view image: Editorial hero with an oversized serif headline" }));
+    const dialog = await screen.findByRole("dialog", { name: "Quick view: Editorial hero with an oversized serif headline" });
+    expect(within(dialog).getByRole("img", { name: image.alt })).toBeVisible();
+    expect(within(dialog).queryByText("Hero")).not.toBeInTheDocument();
+    expect(within(dialog).queryByText("Northwind Ledger")).not.toBeInTheDocument();
   });
 
   it("marks an Arabic reference with the dev-only Arabic chip", () => {

@@ -361,8 +361,8 @@ describe("SectionDetail", () => {
     const aside = screen.getByRole("complementary");
     const facts = within(aside).getAllByRole("definition")[0].closest("dl")!;
     for (const fact of detail.facts) {
-      expect(within(facts).getByText(fact.label)).toBeVisible();
-      expect(within(facts).getByText(fact.value)).toBeVisible();
+      const row = within(facts).getByText(fact.label).closest("div")!;
+      expect(within(row).getByText(fact.value)).toBeVisible();
     }
 
     const tags = within(aside).getByRole("list", { name: "Reference tags" });

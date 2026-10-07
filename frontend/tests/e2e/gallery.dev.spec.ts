@@ -144,6 +144,8 @@ test("hover actions are reachable and never change the card height", async ({ cl
 
   const card = sectionCards(cleanPage).first();
   await expect(card).toBeVisible();
+  const cardId = await card.getAttribute("id");
+  expect(cardId).toBeTruthy();
   const before = (await card.boundingBox())!;
   const actions = card.getByRole("group", { name: "Reference actions" });
 
@@ -155,6 +157,15 @@ test("hover actions are reachable and never change the card height", async ({ cl
   const after = (await card.boundingBox())!;
   expect(Math.abs(after.height - before.height)).toBeLessThanOrEqual(1);
   expect(Math.abs(after.width - before.width)).toBeLessThanOrEqual(1);
+
+  await card.getByRole("button", { name: /^Quick view image:/ }).click();
+  const quickView = cleanPage.getByRole("dialog", { name: /^Quick view:/ });
+  await expect(quickView).toBeVisible();
+  const withQuickView = (await cleanPage.locator(`#${cardId}`).boundingBox())!;
+  expect(Math.abs(withQuickView.height - before.height)).toBeLessThanOrEqual(1);
+  expect(Math.abs(withQuickView.width - before.width)).toBeLessThanOrEqual(1);
+  await cleanPage.keyboard.press("Escape");
+  await expect(quickView).toHaveCount(0);
 });
 
 test("actions are reachable by keyboard and stay visible on touch devices", async ({ cleanPage }, testInfo) => {

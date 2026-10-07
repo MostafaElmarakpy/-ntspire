@@ -158,6 +158,7 @@ export function buildSectionDetail(sectionId: string, locale: SupportedLocale): 
     pageTitle: page.title,
     pageSlug: pageSlug(page.id),
     facts: [
+      { label: t(locale, "detail.factSource"), value: sourceRecord.name },
       { label: t(locale, "detail.factLanguage"), value: languageLabel(locale, section.language) },
       { label: t(locale, "detail.factDirection"), value: directionLabel(locale, section.direction) },
       { label: t(locale, "detail.factDevices"), value: deviceAvailabilityLabel(locale, devices.map((view) => view.device)) },

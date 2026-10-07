@@ -180,6 +180,129 @@ test("Mobile navigation shortcut opens Explore with the mobile device filter", a
   await cleanPage.waitForLoadState("networkidle");
 });
 
+test("the header exposes one Search trigger in the active navigation", async ({ cleanPage }, testInfo) => {
+  await cleanPage.goto("/en/explore");
+  if (testInfo.project.name === "desktop") {
+    await expect(cleanPage.getByRole("button", { name: "Search", exact: true })).toHaveCount(1);
+    return;
+  }
+
+  await cleanPage.getByRole("button", { name: "Open navigation menu" }).click();
+  const menu = cleanPage.getByRole("dialog");
+  const searchTrigger = menu.getByRole("button", { name: "Search", exact: true });
+  await expect(searchTrigger).toHaveCount(1);
+  await searchTrigger.click();
+  await expect(cleanPage.getByRole("dialog", { name: "Search" })).toBeVisible();
+});
+
+test("the source avatar opens the Source page without opening the Section modal", async ({ cleanPage }) => {
+  await cleanPage.goto("/en/explore");
+  const card = cleanPage.locator("article").first();
+  const sourceLink = card.getByRole("link", { name: /^View source:/ });
+  const sourceHref = await sourceLink.getAttribute("href");
+
+  await sourceLink.click();
+  await expect(cleanPage).toHaveURL(new RegExp(`${sourceHref}$`));
+  await expect(cleanPage.getByRole("heading", { level: 1 })).toBeVisible();
+  await expect(cleanPage.getByRole("dialog")).toHaveCount(0);
+});
+
+test("card body opens the Section modal with adjacent Explore results and restores focus", async ({ cleanPage }) => {
+  await cleanPage.goto("/en/explore?sort=latest");
+  const firstCard = cleanPage.locator("article").first();
+  const firstOpen = firstCard.getByRole("link", { name: /^Open reference:/ });
+  const firstHref = await firstOpen.getAttribute("href");
+  expect(firstHref).toBeTruthy();
+
+  const firstUrl = new URL(firstHref!, cleanPage.url());
+  const resultParams = new URLSearchParams(firstUrl.searchParams);
+  resultParams.set("locale", "en");
+  const resultResponse = await cleanPage.request.get(`/api/explore?${resultParams.toString()}`);
+  expect(resultResponse.status()).toBe(200);
+  const resultSet = await resultResponse.json() as { data: { items: Array<{ id: string }> } };
+  const currentId = firstUrl.pathname.split("/").at(-1)!;
+  const currentIndex = resultSet.data.items.findIndex((item) => item.id === currentId);
+  expect(currentIndex).toBeGreaterThanOrEqual(0);
+  const expectedNextId = resultSet.data.items[currentIndex + 1]?.id;
+  expect(expectedNextId).toBeTruthy();
+
+  await firstOpen.click();
+  const dialog = cleanPage.getByRole("dialog");
+  await expect(dialog).toBeVisible();
+  await expect(cleanPage).toHaveURL(firstHref!);
+  await expect(dialog.getByRole("heading", { level: 1 })).toBeVisible();
+  await expect(dialog.getByRole("radiogroup", { name: "Preview device" })).toBeVisible();
+  const detailActions = dialog.getByRole("group", { name: "Reference actions" }).first();
+  for (const label of ["Save reference", "Save as image", "Send to Figma", "View in context"]) {
+    await expect(detailActions.getByRole("button", { name: label })).toBeVisible();
+  }
+
+  const violations = await expectAccessible(cleanPage);
+  expect(violations, JSON.stringify(violations.map(({ id, help }) => ({ id, help })))).toEqual([]);
+
+  await dialog.getByRole("link", { name: "Next reference" }).click();
+  await expect(cleanPage).toHaveURL(new RegExp(`/sections/${expectedNextId}\\?sort=latest$`));
+  await expect(dialog).toBeVisible();
+  await dialog.getByRole("link", { name: "Previous reference" }).click();
+  await expect(cleanPage).toHaveURL(firstHref!);
+  await expect(dialog).toBeVisible();
+
+  await dialog.getByRole("button", { name: "Close", exact: true }).click();
+  await expect(dialog).toHaveCount(0);
+  await expect(cleanPage).toHaveURL("/en/explore?sort=latest");
+  await expect(firstOpen).toBeFocused();
+
+  await firstOpen.click();
+  await expect(cleanPage.getByRole("dialog")).toBeVisible();
+  await cleanPage.keyboard.press("Escape");
+  await expect(cleanPage.getByRole("dialog")).toHaveCount(0);
+  await expect(firstOpen).toBeFocused();
+
+  await firstOpen.click();
+  const outsideClick = cleanPage.locator('[data-slot="dialog-overlay"]').last();
+  await expect(cleanPage.getByRole("dialog")).toBeVisible();
+  await outsideClick.click({ position: { x: 3, y: 3 } });
+  await expect(cleanPage.getByRole("dialog")).toHaveCount(0);
+  await expect(firstOpen).toBeFocused();
+});
+
+test("Quick View is image-only, independent, accessible, and dismissible", async ({ cleanPage }, testInfo) => {
+  await cleanPage.goto("/en/explore");
+  const card = cleanPage.locator("article").first();
+  if (testInfo.project.name === "desktop") await card.hover();
+  const quickView = card.getByRole("button", { name: /^Quick view image:/ });
+  const cardBounds = await card.boundingBox();
+  await quickView.click();
+
+  const dialog = cleanPage.getByRole("dialog", { name: /^Quick view:/ });
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByRole("img")).toBeVisible();
+  await expect(dialog.getByRole("heading")).toHaveCount(1);
+  await expect(dialog.getByText("Hero", { exact: true })).toHaveCount(0);
+  await expect(cleanPage).toHaveURL(/\/en\/explore(?:\?|$)/);
+  const afterBounds = await card.boundingBox();
+  expect(Math.abs((afterBounds?.height ?? 0) - (cardBounds?.height ?? 0))).toBeLessThanOrEqual(1);
+
+  const violations = await expectAccessible(cleanPage);
+  expect(violations, JSON.stringify(violations.map(({ id, help }) => ({ id, help })))).toEqual([]);
+
+  await cleanPage.keyboard.press("Escape");
+  await expect(dialog).toHaveCount(0);
+  await expect(quickView).toBeFocused();
+
+  await quickView.click();
+  await expect(dialog).toBeVisible();
+  await cleanPage.locator('[data-slot="dialog-overlay"]').last().click({ position: { x: 3, y: 3 } });
+  await expect(dialog).toHaveCount(0);
+  await expect(quickView).toBeFocused();
+});
+
+test("a cold Section URL renders the standalone detail page, not a modal", async ({ cleanPage }) => {
+  await cleanPage.goto("/en/sections/section-flowbase-home-3");
+  await expect(cleanPage.getByRole("heading", { level: 1, name: "Everything in one connected workspace" })).toBeVisible();
+  await expect(cleanPage.getByRole("dialog")).toHaveCount(0);
+});
+
 test("Load more appends pages and reaches a stable end state", async ({ cleanPage }) => {
   await cleanPage.goto("/en/explore");
   for (const count of [24, 36, 42]) {

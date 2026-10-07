@@ -12,6 +12,8 @@ export interface SectionCardData {
   title: string;
   sectionType: string;
   sourceName: string;
+  sourceSlug: string;
+  sourceInitial: string;
   tags: string[];
   tagsLabel: string;
   language: string;

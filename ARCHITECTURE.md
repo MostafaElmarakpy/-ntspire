@@ -292,11 +292,26 @@ and the masonry grid, URL state serializer, chips, and SearchService are
 untouched by the correction. The page keeps a visually hidden `h1` so removing
 the visible "Explore references" header does not cost the document its top-level
 heading. The Discover "Website" entry is the Sources index destination, which
-Phase 07 has not built yet, so it renders disabled from
-`ROUTE_AVAILABILITY.websites` with a visible "Soon" badge — a disabled entry with
-no marker reads as broken rather than unbuilt — and becomes a real link when that
-route is enabled. The navbar Search control is unchanged; the search overlay
-remains Phase 06.
+Phase 07 now exposes as a live Sources-index link; its current route and badge
+behavior are preserved. The SearchOverlay remains Phase 06; this correction
+removes only the duplicate compact header icon.
+
+## Phase 07b SectionCard and Explore correction
+
+Only `SectionCard` receives the Phase 07b redesign. Its source monogram links to
+the Source detail route; its image and slim Section Type/source caption share a
+single card-body link; Save and image-only Quick View are absolute overlays, so
+they do not affect card height. PageCard and SourceCard markup and click
+behavior remain unchanged.
+
+The Explore layout uses existing spacing tokens for a tighter outer gutter and
+a narrower desktop sidebar. Its `MasonryGrid` call, `distributeIntoColumns`,
+height estimator, result ranking, and responsive breakpoints are unchanged.
+The Explore-local `@modal` slot intercepts section links only during soft
+navigation from Explore and reuses the same `SectionDetail` as the standalone
+route. Adjacent results come from the current Explore query through
+`mockSearchService.search()`. Cold/direct section URLs remain standalone; Quick
+View is an independent image-only dialog. No taxonomy dimensions were added.
 
 ## Future Integration Boundary
 

@@ -2,6 +2,7 @@ import { DIRECTIONS, LANGUAGES, getTaxonomyEntry } from "@/config/taxonomy";
 import { MOCK_ASSETS, MOCK_PAGES, MOCK_SECTION_CROPS, MOCK_SECTIONS, MOCK_SOURCES } from "@/mocks/fixtures";
 import { t } from "@/i18n/messages";
 import type { SupportedLocale } from "@/i18n/config";
+import { sourceSlug } from "@/lib/slugs";
 import type { Device, Page, Section } from "@/types/domain";
 import type { CardImage, GalleryData, PageCardData, SectionCardData, SourceCardData } from "./types";
 
@@ -92,6 +93,8 @@ export function toSectionCard(section: Section, locale: SupportedLocale, preferr
     title: section.title,
     sectionType: t(locale, sectionType.labelKey),
     sourceName: source.name,
+    sourceSlug: sourceSlug(source.id),
+    sourceInitial: Array.from(source.name)[0]?.toLocaleUpperCase(locale) ?? "?",
     tags: section.tags,
     tagsLabel: t(locale, "gallery.tagsLabel"),
     language: t(locale, LANGUAGES.find((entry) => entry.id === section.language)!.labelKey),

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -40,10 +40,12 @@ interface ViewInContextProps {
 export function ViewInContext({ locale, sectionTitle, view, onOpen }: ViewInContextProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const highlightRef = useRef<HTMLDivElement>(null);
+  const [loadedPageImage, setLoadedPageImage] = useState<string>();
 
   const highlight = cropRectToPercent(view.crop, view.pageImage);
 
   useEffect(() => {
+    if (loadedPageImage !== view.pageImage.src) return;
     const frame = requestAnimationFrame(() => {
       const container = scrollRef.current;
       const band = highlightRef.current;
@@ -60,7 +62,7 @@ export function ViewInContext({ locale, sectionTitle, view, onOpen }: ViewInCont
       container.focus({ preventScroll: true });
     });
     return () => cancelAnimationFrame(frame);
-  }, [view]);
+  }, [loadedPageImage, view]);
 
   return (
     <Dialog
@@ -106,6 +108,7 @@ export function ViewInContext({ locale, sectionTitle, view, onOpen }: ViewInCont
               height={view.pageImage.height}
               sizes="(max-width: 639px) 100vw, 56rem"
               className="h-auto w-full"
+              onLoad={() => setLoadedPageImage(view.pageImage.src)}
             />
             <div
               ref={highlightRef}

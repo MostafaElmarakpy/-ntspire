@@ -68,8 +68,8 @@ filter surface; `explore-filters.tsx` only wraps it in a desktop `<aside>` or th
 existing mobile Sheet. Any future filter work should extend `EXPLORE_FILTERS` in
 `filter-options.ts` and let the sidebar pick it up — do not add a parallel
 control pattern. The Discover "Website" entry is wired to
-`ROUTE_AVAILABILITY.websites` — rendering disabled with a visible "Soon" badge
-until then — and Phase 07 should enable it once the Sources index route exists.
+`ROUTE_AVAILABILITY.websites` and remains a live `/sources` link from Phase 07;
+preserve that destination and its current badge behavior.
 
 ## Temporary dev-only Arabic marker
 
@@ -91,6 +91,15 @@ Arabic when any of their pages is.
 the real Arabic UI and locale — whichever comes first.** That means deleting the
 component and its test, the `dev.arabicMarker` message key, the `isArabic` fields
 on the card data, and the two `AR`-chip e2e assertions.
+
+## Phase 07b handoff
+
+Explore SectionCards open the intercepting detail modal with the current
+serialized Explore state; cold/deep links continue to render the standalone
+`/[locale]/sections/[id]` page. Keep Phase 04 `MasonryGrid`, ranking, column
+calculation, and height estimation unchanged. Quick View is image-only;
+collections remain Phase 08 work. No taxonomy dimensions or PageCard/SourceCard
+behavior were changed.
 
 ## Deliberately deferred
 

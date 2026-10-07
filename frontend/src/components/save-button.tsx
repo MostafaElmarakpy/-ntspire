@@ -24,7 +24,8 @@ export function SaveButton({ sectionId, locale, presentation = "inline", classNa
   const label = saved ? t(locale, "gallery.unsaveLabel") : t(locale, "gallery.saveLabel");
   const visibleLabel = saved ? t(locale, "gallery.saved") : t(locale, "gallery.save");
 
-  const handleClick = () => {
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
     setPending(true);
     // The store flips the snapshot optimistically and rolls it back on failure,
     // so a rejected toggle needs no extra UI here.

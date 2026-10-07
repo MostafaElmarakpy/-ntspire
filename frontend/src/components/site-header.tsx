@@ -32,7 +32,9 @@ export function SiteHeader({ locale }: { locale: SupportedLocale }) {
         ) : null}
         <div className="flex items-center gap-2">
           <div className="hidden h-11 w-12 lg:block" aria-hidden="true" data-locale-switcher-slot />
-          <SearchOverlay locale={locale} triggerLabel={t(locale, "shell.search")} compact />
+          <div className="lg:hidden">
+            <SearchOverlay locale={locale} triggerLabel={t(locale, "shell.search")} compact />
+          </div>
           {USER_ACTIONS.find((action) => action.id === "sign-in")?.available ? <SignInDialog locale={locale} /> : null}
           <MobileNavMenu locale={locale} />
         </div>

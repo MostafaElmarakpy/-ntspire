@@ -12,7 +12,7 @@ export default defineConfig({
     trace: "on-first-retry",
   },
   webServer: {
-    command: `npm run dev -- --hostname 127.0.0.1 --port ${port}`,
+    command: `node scripts/start-playwright-dev-server.mjs ${port}`,
     url: `http://127.0.0.1:${port}/en`,
     reuseExistingServer: false,
     timeout: 120_000,

@@ -211,9 +211,11 @@ export function ExploreExperience({ locale, state, initialData, initialError }: 
       {t(locale, "explore.showing")} {items.length} {t(locale, "explore.of")} {total} {t(locale, "explore.references")}
     </p>
   );
+  const exploreQuery = serializeExploreParams(activeState);
+  const detailHref = (sectionId: string) => `/${locale}/sections/${sectionId}${exploreQuery ? `?${exploreQuery}` : ""}`;
 
   return (
-    <div className="space-y-6">
+    <div className="-mx-5 -my-10 space-y-6 px-5 py-6 sm:-mx-8 sm:-my-14 sm:px-8 sm:py-8 lg:-mx-12 lg:px-8">
       {/*
         The visible "Explore references" header was replaced by the sidebar's
         Discover section. The heading stays in the document, visually hidden, so
@@ -222,7 +224,7 @@ export function ExploreExperience({ locale, state, initialData, initialError }: 
       */}
       <h1 className="sr-only">{t(locale, "explore.title")}</h1>
 
-      <div className="grid gap-8 lg:grid-cols-[17rem_minmax(0,1fr)] lg:gap-10">
+      <div className="grid gap-6 lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-8">
         <ExploreFilters locale={locale} state={activeState} facets={facets} total={total} onChange={navigateToState} />
 
         <div className="min-w-0 space-y-6">
@@ -280,7 +282,7 @@ export function ExploreExperience({ locale, state, initialData, initialError }: 
                   <SectionCard
                     card={card}
                     locale={locale}
-                    openHref={`/${locale}/sections/${card.id}`}
+                    openHref={detailHref(card.id)}
                     priority={priority}
                   />
                 )}

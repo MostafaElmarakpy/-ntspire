@@ -81,10 +81,38 @@ This file contains only real bugs discovered during development or testing.
 - Reproduction: Open `/en/explore` at desktop width.
 - Expected: Explore's controls are a persistent left sidebar — a Discover section for the reference types, an Industry list with live result counts, and the remaining filters below it — with the result count, sort control, chips and masonry grid in the content column.
 - Actual: Phase 05 shipped an "Explore references" H1 with a description line, a horizontal row of seven Select dropdowns plus Sort, and the result count in the page header. That bar is a different information architecture from the approved design, and its dropdowns hid the industry taxonomy and its counts behind a closed control.
-- Root Cause: Phase 05 implemented the filter *capability* from `docs/product-spec.md` §14 without the sidebar layout the approved design calls for; the shipped tests asserted the dropdown-bar DOM (`getByLabel("Section type")`), so they pinned the wrong structure rather than the required behaviour.
+- Root Cause: Phase 05 implemented the filter _capability_ from `docs/product-spec.md` §14 without the sidebar layout the approved design calls for; the shipped tests asserted the dropdown-bar DOM (`getByLabel("Section type")`), so they pinned the wrong structure rather than the required behaviour.
 - Fix: Replaced the header and the dropdown bar with the sidebar. `explore-sidebar.tsx` renders a Discover section (Website, Sections as the default active entry, Mobile as the `device=mobile` shortcut), an always-open Industry list with each industry's live facet count and the filtered total on "All", and one collapsible group per remaining filter (Section type, Style, Language, Direction, Device, Theme) driven by the same `EXPLORE_FILTERS` taxonomy config. `explore-filters.tsx` now only supplies the two containers: a sticky desktop column at `lg`+ and, below `lg`, the pre-existing bottom Sheet, which mounts the identical sidebar with its draft/apply step — no second mobile pattern was added. Sort and the result count moved into the results toolbar. The visible H1 and description were removed; a visually hidden `h1` keeps the document's top-level heading. `SearchService`, `query-engine.ts`, `explore-state.ts`, the chips row, the pagination and the Phase 04 `MasonryGrid` were not touched.
 - Tests: New `frontend/src/features/explore/explore-sidebar.test.tsx` covers the counts, apply/toggle/clear, the Discover device shortcut, group expansion, the visible "Soon" badge on the unavailable Sources entry, and a guard that every filter the dropdown bar exposed is still reachable. `frontend/tests/e2e/explore.spec.ts` was retargeted at the sidebar — filter application, URL/history restoration, chip removal, clear, an applied group starting expanded, the Discover device switch, and the mobile Sheet path — with no assertion weakened. `explore-order.test.ts` and the Phase 04 masonry/card suites were re-run unchanged and still pass.
 - Notes: The Discover "Website" entry is the Sources index destination, which Phase 07 has not built, so it renders disabled from `ROUTE_AVAILABILITY.websites` rather than linking to a route that does not exist; it carries a visible "Soon" badge, because a disabled entry with no marker reads as broken rather than unbuilt, and becomes a real link automatically once that route is enabled. The navbar Search entry point was left exactly as it was — the overlay is Phase 06. The Explore `h1` stays visually hidden rather than being deleted, and the sidebar keeps scrolling internally inside its sticky column rather than with the page; both were confirmed as the intended behaviour, so neither was changed.
+
+### BUG-007 — Section detail omitted the Source metadata fact
+
+- Status: Fixed
+- Severity: Medium
+- Area: Phase 07 Section detail metadata
+- Date: 2026-10-05
+- Reproduction: Open `/en/sections/section-flowbase-home-3` and inspect the metadata list.
+- Expected: The detail page includes Source, language, direction, devices, industry, style, captured date, and attribution.
+- Actual: Source appeared in breadcrumbs and source context but was absent from the facts list.
+- Root Cause: `buildSectionDetail()` omitted the already-typed `detail.factSource` field.
+- Fix: Add the Source fact from the section's existing source record; scope the component test's duplicate-value assertion by its `<dt>` row.
+- Tests: `features/detail/model.test.ts`; unchanged `tests/e2e/detail.spec.ts` source-fact assertions.
+- Notes: The same `SectionDetail` now supplies this field in both the standalone page and intercepted modal.
+
+### BUG-008 — View in Context scrolled before its page image loaded
+
+- Status: Fixed
+- Severity: Medium
+- Area: Phase 07 View in Context
+- Date: 2026-10-05
+- Reproduction: Open a Section detail, switch to Mobile, then open View in Context.
+- Expected: The current device's section highlight scrolls into the visible area of the page capture.
+- Actual: The one-frame scroll calculation could run before the lazy page screenshot had rendered dimensions, leaving the highlight below the scroll viewport.
+- Root Cause: Scroll geometry was measured on the first animation frame after opening rather than after the active device image loaded.
+- Fix: Wait for the active page screenshot's `onLoad` before computing rendered crop pixels and centering the scroll frame.
+- Tests: Unchanged `tests/e2e/detail.spec.ts` View in Context flow passes for desktop and mobile; `features/detail/components.test.tsx` retains crop-per-device coordinate tests.
+- Notes: The crop rectangles and device data model are unchanged.
 
 ## Bug Template
 
