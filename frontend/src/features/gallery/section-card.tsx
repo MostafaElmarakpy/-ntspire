@@ -41,6 +41,7 @@ export function SectionCard({ card, locale, openHref, priority = false }: Sectio
           height={card.image.height}
           sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, (max-width: 1439px) 33vw, 25vw"
           loading={priority ? "eager" : "lazy"}
+          style={{ aspectRatio: `${card.image.width} / ${card.image.height}` }}
           className="h-auto w-full rounded-md"
         />
         <p className="truncate pt-3 pb-1 text-xs text-muted-foreground">

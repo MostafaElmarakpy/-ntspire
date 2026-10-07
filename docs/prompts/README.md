@@ -13,6 +13,7 @@ Run them IN ORDER, one per Claude Code session (or one per `/clear`). Never star
 | 6   | `06-search-overlay.md`          | Search overlay, inference, Arabic Websites chip                                |
 | 7   | `07-detail-pages.md`            | Section/Page/Source detail, View in Context, downloads                        |
 | 7b  | `07b-card-redesign-detail-modal.md` | Section card redesign, click-to-open detail modal, quick-view lightbox     |
+| 7c  | `07c-detail-viewer-layout.md` | Two-panel detail viewer (info sidebar + large media) |
 | 8   | `08-collections.md`             | Collections                                                                    |
 | 8b  | `08b-account-admin-preview.md`  | Mock account/profile/admin preview (localStorage only, no real auth/backend)   |
 | 9   | `09-homepage-seo.md`            | Homepage, metadata, sitemap/robots                                             |

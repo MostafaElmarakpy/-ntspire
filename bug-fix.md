@@ -114,6 +114,34 @@ This file contains only real bugs discovered during development or testing.
 - Tests: Unchanged `tests/e2e/detail.spec.ts` View in Context flow passes for desktop and mobile; `features/detail/components.test.tsx` retains crop-per-device coordinate tests.
 - Notes: The crop rectangles and device data model are unchanged.
 
+### BUG-009 — Shared page container left dead gutters at reduced browser zoom
+
+- Status: Fixed
+- Severity: Medium
+- Area: Shared page shell layout
+- Date: 2026-10-07
+- Reproduction: Open `/en/explore` at 1440px or 1920px and reduce browser zoom.
+- Expected: The main page container fills the available horizontal client width.
+- Actual: The shared `Container` capped content at `88rem`, leaving dead gutters once browser zoom expanded the CSS viewport beyond that cap.
+- Root Cause: The shared page container used a fixed maximum width rather than a fluid width.
+- Fix: Remove the maximum-width cap from the shared `Container`, retaining its existing responsive inline padding.
+- Tests: Browser geometry verification at 1440px and 1920px, at 100%, 90%, and 80% zoom; container bounds matched `documentElement.clientWidth` in all six cases. Full typecheck, lint, unit, build, and e2e gates passed.
+- Notes: Narrow text-specific constraints remain unchanged.
+
+### BUG-010 — Explore card height shifted while its image loaded
+
+- Status: Fixed
+- Severity: Medium
+- Area: Explore and gallery card layout
+- Date: 2026-10-07
+- Reproduction: Open `/en/explore` on mobile and open Quick View before the first card image has reserved its rendered height.
+- Expected: The card height is independent of image loading and Quick View visibility.
+- Actual: The mobile Quick View geometry assertion observed a 187.546px card-height change.
+- Root Cause: The card image's rendered ratio was not explicitly reserved before image load.
+- Fix: Set the card image's CSS `aspect-ratio` from its existing intrinsic width and height metadata.
+- Tests: The unchanged mobile Quick View e2e test passed; the full production and development e2e suites passed.
+- Notes: Masonry column math and its height estimator are unchanged.
+
 ## Bug Template
 
 ### BUG-001 — Title
