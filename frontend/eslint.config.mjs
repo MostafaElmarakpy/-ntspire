@@ -9,9 +9,13 @@ const eslintConfig = defineConfig([
   globalIgnores([
     // Default ignores of eslint-config-next:
     ".next/**",
+    ".next-playwright-dev/**",
     "out/**",
     "build/**",
     "next-env.d.ts",
+    "**/*.cjs",
+    "debug-*.js",
+    "turbopack-*.js",
   ]),
 ]);
 
