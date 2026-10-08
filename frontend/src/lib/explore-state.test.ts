@@ -3,13 +3,17 @@ import { parseExploreParams, serializeExploreParams } from "@/lib/explore-state"
 
 describe("explore-state", () => {
   it("round-trips valid params and drops invalid values", () => {
-    const params = parseExploreParams("?q=hero&sectionType=hero&industry=saas&style=dark&language=en&direction=ltr&device=mobile&theme=dark&sort=featured&bad=1");
+    const params = parseExploreParams("?q=hero&sectionType=hero&industry=saas&style=dark&typography=sans&color=blue&stack=react&format=og-image&language=en&direction=ltr&device=mobile&theme=dark&sort=featured&bad=1");
 
     expect(params).toMatchObject({
       q: "hero",
       sectionTypeId: "hero",
       industryId: "saas",
       styleId: "dark",
+      typographyId: "sans",
+      colorId: "blue",
+      stackId: "react",
+      formatId: "og-image",
       language: "en",
       direction: "ltr",
       device: "mobile",
@@ -17,7 +21,7 @@ describe("explore-state", () => {
       sortBy: "featured",
     });
 
-    expect(serializeExploreParams(params)).toBe("q=hero&sectionType=hero&industry=saas&style=dark&language=en&direction=ltr&device=mobile&theme=dark&sort=featured");
+    expect(serializeExploreParams(params)).toBe("q=hero&sectionType=hero&industry=saas&style=dark&typography=sans&color=blue&stack=react&format=og-image&language=en&direction=ltr&device=mobile&theme=dark&sort=featured");
   });
 
   it("accepts both canonical and legacy keys and ignores unknown values", () => {

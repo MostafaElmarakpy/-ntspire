@@ -16,6 +16,10 @@ const facets: SearchFacets = {
   sectionTypes: { hero: 6, pricing: 3 },
   industries: { saas: 5, fintech: 3, ai: 0 },
   styles: { dark: 4, minimal: 6 },
+  typographies: { sans: 8, serif: 2 },
+  colors: { blue: 5, neutral: 5 },
+  stacks: { react: 6, nextjs: 4 },
+  formats: { section: 10, "og-image": 1 },
   languages: { en: 9, ar: 2 },
   devices: { desktop: 11, mobile: 6 },
   directions: { ltr: 9, rtl: 2 },
@@ -45,7 +49,7 @@ const discoverNav = () => screen.getByRole("navigation", { name: "Discover" });
 describe("Explore sidebar", () => {
   it("keeps every filter the removed dropdown bar exposed", () => {
     renderSidebar();
-    for (const label of ["Section type", "Style", "Language", "Direction", "Device", "Theme"]) {
+    for (const label of ["Section type", "Style", "Typography", "Color", "Stack", "Format", "Language", "Direction", "Device", "Theme"]) {
       expect(screen.getByRole("button", { name: label })).toBeVisible();
     }
     expect(industriesRegion()).toBeVisible();
@@ -106,8 +110,7 @@ describe("Explore sidebar", () => {
     expect(within(industriesRegion()).getByRole("button", { name: "SaaS 5" })).toHaveAttribute("aria-pressed", "false");
   });
 
-  it("drives the device filter from the Discover entries", () => {
-    const toMobile = vi.fn();
+  it("drives the device filter from the Discover entries", () => {    const toMobile = vi.fn();
     const { unmount } = render(
       <ExploreSidebar locale="en" state={{ industryId: "saas" }} facets={facets} total={TOTAL} onChange={toMobile} />,
     );
@@ -142,5 +145,24 @@ describe("Explore sidebar", () => {
     renderSidebar({ state: { sectionTypeId: "hero" } });
     expect(screen.getByRole("button", { name: "Section type" })).toHaveAttribute("aria-expanded", "true");
     expect(screen.getByRole("button", { name: "Hero 6" })).toBeVisible();
+  });
+
+  it("toggles the OG Images format from its Discover entry", () => {
+    const toOg = vi.fn();
+    const { unmount } = render(
+      <ExploreSidebar locale="en" state={{ industryId: "saas" }} facets={facets} total={TOTAL} onChange={toOg} />,
+    );
+    fireEvent.click(within(discoverNav()).getByRole("button", { name: "OG Images" }));
+    expect(toOg).toHaveBeenCalledWith({ industryId: "saas", formatId: "og-image" });
+    unmount();
+
+    const back = vi.fn();
+    render(
+      <ExploreSidebar locale="en" state={{ formatId: "og-image" }} facets={facets} total={TOTAL} onChange={back} />,
+    );
+    expect(within(discoverNav()).getByRole("button", { name: "OG Images" })).toHaveAttribute("aria-current", "true");
+    expect(within(discoverNav()).getByRole("button", { name: "Sections" })).not.toHaveAttribute("aria-current");
+    fireEvent.click(within(discoverNav()).getByRole("button", { name: "Sections" }));
+    expect(back).toHaveBeenCalledWith({});
   });
 });

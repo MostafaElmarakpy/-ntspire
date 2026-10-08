@@ -37,13 +37,13 @@ export function SourceDetail({ locale, detail }: SourceDetailProps) {
       />
 
       <header className="space-y-4">
-        <h1 className="font-serif text-3xl leading-tight sm:text-4xl">{detail.name}</h1>
-        <p className="max-w-2xl text-base text-muted-foreground">{detail.description}</p>
+        <h1 className="text-[26px] font-medium leading-[1.2] tracking-[-0.01em] text-foreground sm:text-[28px]">{detail.name}</h1>
+        <p className="max-w-2xl text-muted-foreground">{detail.description}</p>
         <FactList facts={detail.facts} className="grid gap-x-8 gap-y-4 border-t border-border pt-6 sm:grid-cols-2 lg:grid-cols-3" />
       </header>
 
       <section aria-label={t(locale, "detail.sourcePagesTitle")} className="space-y-5">
-        <h2 className="font-serif text-2xl">{t(locale, "detail.sourcePagesTitle")}</h2>
+        <h2 className="text-base font-semibold tracking-[-0.01em]">{t(locale, "detail.sourcePagesTitle")}</h2>
         {detail.pages.length > 0
           ? (
             <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -77,7 +77,7 @@ export function SourceDetail({ locale, detail }: SourceDetailProps) {
 
       <section aria-label={t(locale, "detail.sourceSectionsTitle")} className="space-y-5">
         <div className="flex flex-wrap items-center gap-3">
-          <h2 className="font-serif text-2xl">{t(locale, "detail.sourceSectionsTitle")}</h2>
+          <h2 className="text-base font-semibold tracking-[-0.01em]">{t(locale, "detail.sourceSectionsTitle")}</h2>
           <Badge variant="secondary">{detail.sections.length}</Badge>
         </div>
         {detail.sections.length > 0

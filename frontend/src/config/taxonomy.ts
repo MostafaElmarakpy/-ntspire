@@ -45,8 +45,12 @@ export const INDUSTRIES: TaxonomyEntry[] = [
   { id: "healthcare", labelKey: "taxonomy.industry.healthcare", aliases: { en: ["Healthcare", "Medical"], ar: [] } },
   { id: "education", labelKey: "taxonomy.industry.education", aliases: { en: ["Education", "Learning", "EdTech"], ar: [] } },
   { id: "marketing", labelKey: "taxonomy.industry.marketing", aliases: { en: ["Marketing", "Advertising"], ar: [] } },
-  { id: "travel", labelKey: "taxonomy.industry.travel", aliases: { en: ["Travel", "Tourism"], ar: [] } },
-  { id: "food", labelKey: "taxonomy.industry.food", aliases: { en: ["Food", "Restaurant", "Delivery"], ar: [] } },
+  { id: "travel", labelKey: "taxonomy.industry.travel", aliases: { en: ["Travel", "Tourism", "Travel & Tourism"], ar: [] } },
+  { id: "food", labelKey: "taxonomy.industry.food", aliases: { en: ["Food", "Food & Drink", "Restaurant", "Delivery"], ar: [] } },
+  { id: "retail", labelKey: "taxonomy.industry.retail", aliases: { en: ["Retail", "Shop", "Store"], ar: [] } },
+  { id: "transport", labelKey: "taxonomy.industry.transport", aliases: { en: ["Transport", "Mobility", "Transit"], ar: [] } },
+  { id: "entertainment", labelKey: "taxonomy.industry.entertainment", aliases: { en: ["Entertainment", "Media", "Games"], ar: [] } },
+  { id: "technology", labelKey: "taxonomy.industry.technology", aliases: { en: ["Technology", "Tech"], ar: [] } },
 ];
 
 export const STYLES: TaxonomyEntry[] = [
@@ -63,8 +67,40 @@ export const STYLES: TaxonomyEntry[] = [
   { id: "typography", labelKey: "taxonomy.style.typography", aliases: { en: ["Typography-focused", "Type-first"], ar: [] } },
 ];
 
-export const LANGUAGES: { id: Locale; labelKey: MessageKey }[] = [
-  { id: "en", labelKey: "taxonomy.language.en" },
+export const TYPOGRAPHIES: TaxonomyEntry[] = [
+  { id: "serif", labelKey: "taxonomy.typography.serif", aliases: { en: ["Serif"], ar: [] } },
+  { id: "sans", labelKey: "taxonomy.typography.sans", aliases: { en: ["Sans", "Sans-serif", "Sans serif", "Grotesk"], ar: [] } },
+  { id: "mono", labelKey: "taxonomy.typography.mono", aliases: { en: ["Mono", "Monospace", "Monospaced"], ar: [] } },
+  { id: "display", labelKey: "taxonomy.typography.display", aliases: { en: ["Display"], ar: [] } },
+];
+
+export const COLORS: TaxonomyEntry[] = [
+  { id: "neutral", labelKey: "taxonomy.color.neutral", aliases: { en: ["Neutral", "Grayscale"], ar: [] } },
+  { id: "blue", labelKey: "taxonomy.color.blue", aliases: { en: ["Blue"], ar: [] } },
+  { id: "green", labelKey: "taxonomy.color.green", aliases: { en: ["Green"], ar: [] } },
+  { id: "violet", labelKey: "taxonomy.color.violet", aliases: { en: ["Violet", "Purple"], ar: [] } },
+  { id: "orange", labelKey: "taxonomy.color.orange", aliases: { en: ["Orange"], ar: [] } },
+  { id: "rose", labelKey: "taxonomy.color.rose", aliases: { en: ["Rose", "Pink"], ar: [] } },
+  { id: "monochrome", labelKey: "taxonomy.color.monochrome", aliases: { en: ["Monochrome", "Black and White"], ar: [] } },
+];
+
+export const STACKS: TaxonomyEntry[] = [
+  { id: "react", labelKey: "taxonomy.stack.react", aliases: { en: ["React"], ar: [] } },
+  { id: "nextjs", labelKey: "taxonomy.stack.nextjs", aliases: { en: ["Next.js", "Next"], ar: [] } },
+  { id: "tailwind", labelKey: "taxonomy.stack.tailwind", aliases: { en: ["Tailwind"], ar: [] } },
+  { id: "vue", labelKey: "taxonomy.stack.vue", aliases: { en: ["Vue"], ar: [] } },
+  { id: "svelte", labelKey: "taxonomy.stack.svelte", aliases: { en: ["Svelte"], ar: [] } },
+  { id: "webflow", labelKey: "taxonomy.stack.webflow", aliases: { en: ["Webflow"], ar: [] } },
+  { id: "wordpress", labelKey: "taxonomy.stack.wordpress", aliases: { en: ["WordPress"], ar: [] } },
+  { id: "framer", labelKey: "taxonomy.stack.framer", aliases: { en: ["Framer"], ar: [] } },
+];
+
+export const FORMATS: TaxonomyEntry[] = [
+  { id: "section", labelKey: "taxonomy.format.section", aliases: { en: ["Section"], ar: [] } },
+  { id: "og-image", labelKey: "taxonomy.format.ogImage", aliases: { en: ["OG Image", "OG Images", "Open Graph"], ar: [] } },
+];
+
+export const LANGUAGES: { id: Locale; labelKey: MessageKey }[] = [  { id: "en", labelKey: "taxonomy.language.en" },
   { id: "ar", labelKey: "taxonomy.language.ar" },
 ];
 
@@ -105,9 +141,15 @@ export const CATEGORY_IDS: Record<string, string> = Object.fromEntries(
 );
 
 export const getTaxonomyEntry = (
-  group: "sectionType" | "industry" | "style",
+  group: "sectionType" | "industry" | "style" | "typography" | "color" | "stack" | "format",
   id: string,
 ): TaxonomyEntry | undefined => {
-  const entries = group === "sectionType" ? SECTION_TYPES : group === "industry" ? INDUSTRIES : STYLES;
+  const entries = group === "sectionType" ? SECTION_TYPES
+    : group === "industry" ? INDUSTRIES
+    : group === "style" ? STYLES
+    : group === "typography" ? TYPOGRAPHIES
+    : group === "color" ? COLORS
+    : group === "stack" ? STACKS
+    : FORMATS;
   return entries.find((entry) => entry.id === id);
 };

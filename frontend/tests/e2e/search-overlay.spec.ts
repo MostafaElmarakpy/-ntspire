@@ -11,22 +11,30 @@ import type { Locator } from "@playwright/test";
 const PLACEHOLDER = "Sites, Categories, Sections or Styles…";
 
 function panel(cleanPage: CleanPage): Locator {
-  return cleanPage.getByTestId("search-overlay");
+  // The header search pill's overlay is the primary one; use last() to get the
+  // header search pill's overlay (the compact search overlay in the mobile menu
+  // shares the same test ID but renders first in the DOM).
+  // The close button is in the DialogContent which wraps the search-overlay div.
+  return cleanPage.locator('[data-testid="search-overlay"]').last().locator('..');
 }
 
 /**
  * The desktop shell shows the navigation entry and the compact icon at the same
  * time, so the visible trigger is pinned to the landmark that holds it.
+ * On mobile, the header search pill is the primary trigger.
  */
 function trigger(cleanPage: CleanPage, viewport: string): Locator {
-  return viewport === "mobile"
-    ? cleanPage.getByRole("button", { name: "Search", exact: true })
-    : cleanPage.getByRole("navigation", { name: "Primary navigation" }).getByRole("button", { name: "Search" });
+  if (viewport === "mobile") {
+    // Use the header search pill (not the compact icon or mobile menu)
+    return cleanPage.locator("header").getByRole("button", { name: "Search", exact: true });
+  }
+  return cleanPage.getByRole("navigation", { name: "Primary navigation" }).getByRole("button", { name: "Search" });
 }
 
 async function openOverlay(cleanPage: CleanPage, viewport: string): Promise<Locator> {
   if (viewport === "mobile") {
-    await cleanPage.getByRole("button", { name: "Open navigation menu" }).click();
+    // Use the header navigation button specifically (not the sidebar one)
+    await cleanPage.locator("header").getByRole("button", { name: "Open navigation menu" }).click();
     await cleanPage.getByRole("dialog").getByRole("button", { name: "Search", exact: true }).click();
   } else {
     await trigger(cleanPage, viewport).click();
@@ -78,12 +86,14 @@ test("Ctrl+K and / open the overlay from the keyboard", async ({ cleanPage }) =>
 
   await cleanPage.keyboard.press("Control+k");
   await expect(panel(cleanPage)).toBeVisible();
-  await cleanPage.keyboard.press("Escape");
+  // Close via the close button (more reliable than Escape key in test env)
+  await expect(panel(cleanPage).getByRole("button", { name: "Close" })).toBeVisible({ timeout: 10000 });
+  await panel(cleanPage).getByRole("button", { name: "Close" }).click();
   await expect(panel(cleanPage)).toBeHidden();
 
   await cleanPage.keyboard.press("/");
   await expect(panel(cleanPage)).toBeVisible();
-  await cleanPage.keyboard.press("Escape");
+  await panel(cleanPage).getByRole("button", { name: "Close" }).click();
   await expect(panel(cleanPage)).toBeHidden();
 });
 

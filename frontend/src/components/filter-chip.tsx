@@ -1,6 +1,7 @@
 "use client";
 
 import { X } from "lucide-react";
+import { Chip } from "@heroui/react/chip";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -15,7 +16,16 @@ interface FilterChipProps {
 
 export function FilterChip({ label, selected = false, removeLabel, onSelect, onRemove, className }: FilterChipProps) {
   return (
-    <span className={cn("inline-flex min-h-11 items-center gap-1 rounded-full border border-border bg-card ps-1 pe-1", selected && "border-primary bg-secondary", className)}>
+    // The HeroUI Chip is the pill container only (a span): making the whole
+    // chip a button would nest the remove button inside it. The select button
+    // keeps `aria-pressed` and the remove affordance stays a sibling control.
+    // `tertiary` is the transparent variant so our card/border tokens show
+    // through; `lg` keeps the label at the original text-sm size.
+    <Chip
+      variant="tertiary"
+      size="lg"
+      className={cn("min-h-11 gap-1 rounded-full border border-border bg-card ps-1 pe-1", selected && "border-primary bg-secondary", className)}
+    >
       <button
         type="button"
         aria-pressed={selected}
@@ -29,6 +39,6 @@ export function FilterChip({ label, selected = false, removeLabel, onSelect, onR
           <X aria-hidden="true" />
         </Button>
       ) : null}
-    </span>
+    </Chip>
   );
 }

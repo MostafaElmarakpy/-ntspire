@@ -1,10 +1,13 @@
-import { DEVICES, DIRECTIONS, INDUSTRIES, LANGUAGES, SECTION_TYPES, STYLES } from "@/config/taxonomy";
+import { COLORS, DEVICES, DIRECTIONS, INDUSTRIES, LANGUAGES, SECTION_TYPES, STACKS, STYLES, TYPOGRAPHIES } from "@/config/taxonomy";
 import type { Device, Direction, Locale } from "@/types/domain";
 
 export type SearchFilters = {
   sectionTypeId?: string;
   industryId?: string;
   styleId?: string;
+  typographyId?: string;
+  colorId?: string;
+  stackId?: string;
   language?: Locale;
   direction?: Direction;
   device?: Device;
@@ -27,12 +30,18 @@ export interface SearchTaxonomy {
   sectionTypes: readonly AliasEntry[];
   industries: readonly AliasEntry[];
   styles: readonly AliasEntry[];
+  typographies: readonly AliasEntry[];
+  colors: readonly AliasEntry[];
+  stacks: readonly AliasEntry[];
 }
 
 const defaultTaxonomy: SearchTaxonomy = {
   sectionTypes: SECTION_TYPES,
   industries: INDUSTRIES,
   styles: STYLES,
+  typographies: TYPOGRAPHIES,
+  colors: COLORS,
+  stacks: STACKS,
 };
 
 /**
@@ -53,15 +62,19 @@ type FilterDimension = keyof SearchFilters;
 /**
  * Declaration order is the tie-breaker when a phrase matches several
  * dimensions, so the most content-like reading wins: a word is more usefully a
- * section type than a device name.
+ * section type than a device name. Newer dimensions rank after the original
+ * ones, so existing resolutions (e.g. "monochrome" as a style) never change.
  */
 const dimensionRank: Record<FilterDimension, number> = {
   sectionTypeId: 0,
   industryId: 1,
   styleId: 2,
-  language: 3,
-  direction: 4,
-  device: 5,
+  typographyId: 3,
+  colorId: 4,
+  stackId: 5,
+  language: 6,
+  direction: 7,
+  device: 8,
 };
 
 type Candidate = { dimension: FilterDimension; id: string; exactId: boolean };
@@ -104,6 +117,9 @@ function recordFilter(filters: SearchFilters, matched: Candidate): void {
     case "sectionTypeId": if (filters.sectionTypeId === undefined) filters.sectionTypeId = matched.id; return;
     case "industryId": if (filters.industryId === undefined) filters.industryId = matched.id; return;
     case "styleId": if (filters.styleId === undefined) filters.styleId = matched.id; return;
+    case "typographyId": if (filters.typographyId === undefined) filters.typographyId = matched.id; return;
+    case "colorId": if (filters.colorId === undefined) filters.colorId = matched.id; return;
+    case "stackId": if (filters.stackId === undefined) filters.stackId = matched.id; return;
     case "language": {
       const id = LANGUAGES.find((entry) => entry.id === matched.id)?.id;
       if (id && filters.language === undefined) filters.language = id;
@@ -143,6 +159,9 @@ function buildAliasLookup(taxonomy: SearchTaxonomy, locale: Locale): Map<string,
   addTaxonomy(taxonomy.sectionTypes, "sectionTypeId");
   addTaxonomy(taxonomy.industries, "industryId");
   addTaxonomy(taxonomy.styles, "styleId");
+  addTaxonomy(taxonomy.typographies, "typographyId");
+  addTaxonomy(taxonomy.colors, "colorId");
+  addTaxonomy(taxonomy.stacks, "stackId");
 
   for (const shortcut of shortcutVocabulary) {
     for (const alias of shortcut.aliases) {

@@ -60,7 +60,7 @@ async function scanAccessibility(cleanPage: CleanPage, label: string): Promise<v
 
 test("the index routes list what the library holds and link into it", async ({ cleanPage }) => {
   await cleanPage.goto("/en/sources");
-  await expect(cleanPage.getByRole("heading", { level: 1, name: "Sources" })).toBeVisible();
+  await expect(cleanPage.getByRole("heading", { level: 1, name: "Web design inspiration" })).toBeVisible();
   await expect(cleanPage.getByRole("link", { name: /^Open reference: / })).toHaveCount(10);
   await expect(cleanPage.getByRole("link", { name: "Open reference: Flowbase", exact: true })).toHaveAttribute(
     "href",
@@ -76,7 +76,7 @@ test("the index routes list what the library holds and link into it", async ({ c
 
   await cleanPage.goto("/en/categories");
   await expect(cleanPage.getByRole("heading", { level: 1, name: "Categories" })).toBeVisible();
-  for (const group of ["Industries", "Section type", "Style"]) {
+  for (const group of ["Industries", "Section type", "Style", "Typography", "Color", "Stack", "Format"]) {
     await expect(cleanPage.getByRole("region", { name: group })).toBeVisible();
   }
   // A category entry hands Explore exactly the filter it counts, spelled the
@@ -398,7 +398,7 @@ test("every level of the flow links both up and down", async ({ cleanPage }, tes
   await expect(website).toHaveAttribute("href", "/en/sources");
   await website.click();
   await expect(cleanPage).toHaveURL("/en/sources");
-  await expect(cleanPage.getByRole("heading", { level: 1, name: "Sources" })).toBeVisible();
+  await expect(cleanPage.getByRole("heading", { level: 1, name: "Web design inspiration" })).toBeVisible();
 });
 
 test("the detail routes report loading, empty and error states from their mock modes", async ({ cleanPage }) => {

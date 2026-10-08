@@ -34,7 +34,7 @@ const searchService: SearchService = {
     return applyMockConfig(() => querySections(MOCK_FIXTURE.sections, MOCK_FIXTURE.sources, request), request.mockQuery, {
       items: [],
       total: 0,
-      facets: { sectionTypes: {}, industries: {}, styles: {}, languages: {}, devices: {}, directions: {}, themes: {}, sources: {} },
+      facets: { sectionTypes: {}, industries: {}, styles: {}, typographies: {}, colors: {}, stacks: {}, formats: {}, languages: {}, devices: {}, directions: {}, themes: {}, sources: {} },
     });
   },
   // Suggestions rank the same taxonomy the parser reads, so a suggested term is

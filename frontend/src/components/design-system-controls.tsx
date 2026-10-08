@@ -21,7 +21,7 @@ export function DesignSystemControls({ locale }: { locale: SupportedLocale }) {
   return (
     <div className="grid gap-10">
       <section aria-labelledby="controls-heading" className="grid gap-6">
-        <h2 id="controls-heading" className="font-serif text-2xl">{t(locale, "design.sectionControls")}</h2>
+        <h2 id="controls-heading" className="text-base font-semibold tracking-[-0.01em]">{t(locale, "design.sectionControls")}</h2>
         <div className="flex flex-wrap items-center gap-3">
           <Button className="min-h-11">{t(locale, "design.primaryAction")}</Button>
           <Button variant="outline" className="min-h-11">{t(locale, "design.secondaryAction")}</Button>
@@ -47,7 +47,7 @@ export function DesignSystemControls({ locale }: { locale: SupportedLocale }) {
             <DialogTrigger asChild><Button variant="outline" className="min-h-11">{t(locale, "design.dialogAction")}</Button></DialogTrigger>
             <DialogContent closeLabel={t(locale, "shell.close")}>
               <DialogHeader>
-                <DialogTitle className="font-serif">{t(locale, "design.dialogTitle")}</DialogTitle>
+                <DialogTitle className="font-medium tracking-[-0.01em]">{t(locale, "design.dialogTitle")}</DialogTitle>
                 <DialogDescription>{t(locale, "design.dialogDescription")}</DialogDescription>
               </DialogHeader>
             </DialogContent>
@@ -61,7 +61,7 @@ export function DesignSystemControls({ locale }: { locale: SupportedLocale }) {
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="grid gap-2 text-sm font-medium">
             {t(locale, "design.selectLabel")}
-            <Select defaultValue="comfortable">
+            <Select defaultValue="comfortable" aria-label={t(locale, "design.selectLabel")}>
               <SelectTrigger className="h-11 w-full bg-card"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="comfortable">{t(locale, "design.densityComfortable")}</SelectItem>
@@ -79,7 +79,7 @@ export function DesignSystemControls({ locale }: { locale: SupportedLocale }) {
         </div>
       </section>
       <section aria-labelledby="feedback-heading" className="grid gap-6">
-        <h2 id="feedback-heading" className="font-serif text-2xl">{t(locale, "design.sectionFeedback")}</h2>
+        <h2 id="feedback-heading" className="text-base font-semibold tracking-[-0.01em]">{t(locale, "design.sectionFeedback")}</h2>
         <Tabs defaultValue="overview">
           <TabsList aria-label={t(locale, "design.sectionFeedback")}>
             <TabsTrigger value="overview">{t(locale, "design.tabsOverview")}</TabsTrigger>

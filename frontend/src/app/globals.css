@@ -1,29 +1,74 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* HeroUI pilot: shared token bridge, custom utilities, then per-component CSS
+   only (chip, skeleton, drawer) plus the default theme variables. Our
+   unlayered :root tokens below win every name collision, so the brand palette
+   and radius scale stay authoritative. */
+@import "@heroui/styles/themes/shared/theme.css";
+@import "@heroui/styles/utilities";
+@import "@heroui/styles/components/chip.css" layer(components);
+@import "@heroui/styles/components/skeleton.css" layer(components);
+@import "@heroui/styles/components/drawer.css" layer(components);
+@import "@heroui/styles/components/badge.css" layer(components);
+@import "@heroui/styles/components/input.css" layer(components);
+@import "@heroui/styles/components/tabs.css" layer(components);
+@import "@heroui/styles/components/select.css" layer(components);
+@import "@heroui/styles/components/list-box.css" layer(components);
+@import "@heroui/styles/components/list-box-item.css" layer(components);
+@import "@heroui/styles/components/popover.css" layer(components);
+@import "@heroui/styles/themes/default/variables.css" layer(theme);
+
+/* Body face (OFL-licensed Inter variable, self-hosted): a clean
+   neo-grotesque sans for the whole interface — one family only. The Arabic
+   rollout will fall through to system fonts, which Inter's latin ranges leave
+   untouched. */
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("/fonts/inter-latin-ext-wght-normal.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4;
+}
+
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("/fonts/inter-latin-wght-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 :root {
-  --background: #f5f7f2;
-  --foreground: #17231d;
+  --background: #fafafa;
+  --foreground: #111111;
   --card: #ffffff;
-  --card-foreground: #17231d;
+  --card-foreground: #111111;
   --popover: #ffffff;
-  --popover-foreground: #17231d;
-  --primary: #174c3c;
+  --popover-foreground: #111111;
+  --primary: #111111;
   --primary-foreground: #ffffff;
-  --secondary: #e2ede5;
-  --secondary-foreground: #1b4738;
-  --muted: #e9eee9;
-  --muted-foreground: #536158;
-  --accent: #d8f35b;
-  --accent-foreground: #1c2a1e;
+  --secondary: #f1f1f1;
+  --secondary-foreground: #1a1a1a;
+  --muted: #f1f1f1;
+  /*
+   * Muted running text. The gallery spec's #8A8A8A sits below 4.5:1 on white,
+   * which the axe gate rejects, so small meta copy uses this darker gray and
+   * #8A8A8A survives only as --muted-faint for large/decorative text.
+   */
+  --muted-foreground: #6e6e6e;
+  --muted-faint: #8a8a8a;
+  --accent: #ededed;
+  --accent-foreground: #111111;
   --destructive: #b83d32;
-  --border: #d8e0d9;
-  --input: #c7d2ca;
-  --ring: #5c9278;
+  --border: #ececec;
+  --input: #ececec;
+  --ring: #111111;
   --radius: 0.5rem;
-  --radius-card: 0.5rem;
-  --font-display: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
-  --font-body: "Aptos", "Trebuchet MS", "Segoe UI", sans-serif;
+  --radius-card: 0.75rem;
+  --font-body: "Inter", -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-code: "Cascadia Code", "Courier New", monospace;
   --space-1: 0.25rem;
   --space-2: 0.5rem;
@@ -35,8 +80,37 @@
   --space-10: 2.5rem;
   --space-12: 3rem;
   --space-16: 4rem;
-  --masonry-gap: 1.25rem;
-  --focus-ring: 0 0 0 3px rgb(23 76 60 / 24%);
+  --masonry-gap: 1.5rem;
+  --shadow-soft: 0 1px 2px rgb(0 0 0 / 4%);
+  --focus-ring: 0 0 0 3px rgb(17 17 17 / 16%);
+  /* HeroUI bridge: surface/overlay fall back to our card/popover tokens, and
+     field radius follows the 8px control radius. */
+  --surface: var(--card);
+  --surface-foreground: var(--card-foreground);
+  --overlay: var(--popover);
+  --overlay-foreground: var(--popover-foreground);
+  --field-radius: var(--radius);
+}
+
+@media (max-width: 767px) {
+  :root {
+    --masonry-gap: 1.25rem;
+  }
+}
+
+@media (min-width: 1600px) {
+  :root {
+    --masonry-gap: 2rem;
+  }
+}
+
+/*
+ * HeroUI reads --muted as secondary TEXT (unselected tabs); ours is a
+ * surface tint, so inside HeroUI tab labels it resolves to our muted text
+ * tone instead. Scoped narrowly: our own bg-muted surfaces are unaffected.
+ */
+.tabs__tab {
+  --muted: var(--muted-foreground);
 }
 
 @theme inline {
@@ -52,6 +126,7 @@
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
+  --color-muted-faint: var(--muted-faint);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
@@ -61,8 +136,8 @@
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
+  --shadow-soft: 0 1px 2px rgb(0 0 0 / 4%);
   --font-sans: var(--font-body);
-  --font-serif: var(--font-display);
   --font-mono: var(--font-code);
 }
 
@@ -70,13 +145,34 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-body);
-  font-size: 1rem;
-  line-height: 1.55;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/*
+ * Quiet content links: inherit the text color with no underline, underline
+ * (or dim) on hover. Applied opt-in via `link-subtle` so button and overlay
+ * primitives keep their own treatments.
+ */
+.link-subtle {
+  color: inherit;
+  text-decoration: none;
+  transition:
+    color 150ms ease,
+    opacity 150ms ease;
+}
+
+.link-subtle:hover {
+  color: var(--foreground);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 ::selection {
-  background: var(--accent);
-  color: var(--accent-foreground);
+  background: var(--foreground);
+  color: var(--background);
 }
 
 :focus-visible {

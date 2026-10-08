@@ -158,14 +158,16 @@ test("hover actions are reachable and never change the card height", async ({ cl
   expect(Math.abs(after.height - before.height)).toBeLessThanOrEqual(1);
   expect(Math.abs(after.width - before.width)).toBeLessThanOrEqual(1);
 
-  await card.getByRole("button", { name: /^Quick view image:/ }).click();
-  const quickView = cleanPage.getByRole("dialog", { name: /^Quick view:/ });
-  await expect(quickView).toBeVisible();
-  const withQuickView = (await cleanPage.locator(`#${cardId}`).boundingBox())!;
-  expect(Math.abs(withQuickView.height - before.height)).toBeLessThanOrEqual(1);
-  expect(Math.abs(withQuickView.width - before.width)).toBeLessThanOrEqual(1);
-  await cleanPage.keyboard.press("Escape");
-  await expect(quickView).toHaveCount(0);
+  // Toggling Save flips pressed state without touching layout.
+  const save = card.getByRole("button", { name: "Save reference" });
+  await save.click();
+  const saved = card.getByRole("button", { name: "Remove reference from saved" });
+  await expect(saved).toHaveAttribute("aria-pressed", "true");
+  const withSave = (await cleanPage.locator(`#${cardId}`).boundingBox())!;
+  expect(Math.abs(withSave.height - before.height)).toBeLessThanOrEqual(1);
+  expect(Math.abs(withSave.width - before.width)).toBeLessThanOrEqual(1);
+  await saved.click();
+  await expect(card.getByRole("button", { name: "Save reference" })).toHaveAttribute("aria-pressed", "false");
 });
 
 test("actions are reachable by keyboard and stay visible on touch devices", async ({ cleanPage }, testInfo) => {

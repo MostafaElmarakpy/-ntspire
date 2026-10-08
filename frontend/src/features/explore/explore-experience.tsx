@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { EmptyState, SectionSkeleton } from "@/components/content-states";
 import { ErrorState } from "@/components/error-state";
 import { ExploreFilterSheet, ExploreFilters } from "@/features/explore/explore-filters";
+import { ExploreQuickPills } from "@/features/explore/explore-quick-pills";
 import { trackExploreDeviceView, trackExploreFilterApplied } from "@/features/explore/analytics";
 import { FILTER_LABELS, getExploreFilterLabel, type FilterKey } from "@/features/explore/filter-options";
 import { MasonryGrid } from "@/features/gallery/masonry-grid";
@@ -74,7 +75,7 @@ function ExploreSortControl({
         id="explore-sort"
         value={state.sortBy ?? "latest"}
         onChange={(event) => onChange({ ...state, sortBy: event.currentTarget.value === "featured" ? "featured" : undefined })}
-        className="min-h-10 rounded-md border border-input bg-background px-3 text-sm text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+        className="min-h-9 rounded-full border border-border bg-card px-3 text-sm text-foreground focus-visible:ring-2 focus-visible:ring-ring"
       >
         <option value="latest">{t(locale, "explore.sortLatest")}</option>
         <option value="featured">{t(locale, "explore.sortFeatured")}</option>
@@ -215,7 +216,7 @@ export function ExploreExperience({ locale, state, initialData, initialError }: 
   const detailHref = (sectionId: string) => `/${locale}/sections/${sectionId}${exploreQuery ? `?${exploreQuery}` : ""}`;
 
   return (
-    <div className="-mx-5 -my-10 space-y-6 px-5 py-6 sm:-mx-8 sm:-my-14 sm:px-8 sm:py-8 lg:-mx-12 lg:px-8">
+    <div className="-mx-5 -my-16 space-y-8 px-5 py-6 sm:-mx-8 sm:-my-24 sm:px-8 sm:py-8 lg:-mx-12 lg:px-12">
       {/*
         The visible "Explore references" header was replaced by the sidebar's
         Discover section. The heading stays in the document, visually hidden, so
@@ -224,17 +225,19 @@ export function ExploreExperience({ locale, state, initialData, initialError }: 
       */}
       <h1 className="sr-only">{t(locale, "explore.title")}</h1>
 
-      <div className="grid gap-6 lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-8">
+      <div className="grid gap-6 lg:grid-cols-[17.5rem_minmax(0,1fr)] lg:gap-8">
         <ExploreFilters locale={locale} state={activeState} facets={facets} total={total} onChange={navigateToState} />
 
         <div className="min-w-0 space-y-6">
-          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border pb-4">
+          <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex flex-wrap items-center gap-3">
               <ExploreFilterSheet locale={locale} state={activeState} facets={facets} total={total} onChange={navigateToState} />
               {count}
             </div>
             <ExploreSortControl locale={locale} state={activeState} onChange={navigateToState} />
           </div>
+
+          <ExploreQuickPills locale={locale} state={activeState} facets={facets} onChange={navigateToState} />
 
           {activeChips.length > 0 ? (
             <div className="flex flex-wrap items-center gap-2" role="region" aria-label={t(locale, "explore.activeFilters")}>

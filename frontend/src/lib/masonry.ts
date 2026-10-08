@@ -18,8 +18,10 @@ export const MASONRY_BREAKPOINTS: readonly MasonryBreakpoint[] = [
   { minWidth: 0, columns: 1 },
 ];
 
-/** Height of a card's text body below the screenshot, in pixels. */
-export const CARD_FOOTER_ALLOWANCE = 132;
+/** Height of a card's chrome below the screenshot, in pixels. SectionCard is
+ * image-only (overlays are absolute), so this covers just borders/rounding —
+ * the recent.design-style truthful waterfall balances on pure image ratio. */
+export const CARD_FOOTER_ALLOWANCE = 0;
 
 /**
  * Column count used by the server render and by the hydration render.

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { availableEntries, FOOTER_NAV, PRIMARY_NAV, ROUTE_AVAILABILITY, routeHref, USER_ACTIONS, USER_NAV } from "@/config/navigation";
+import { availableEntries, BROWSE_NAV, FOOTER_NAV, isNavEntryActive, PRIMARY_NAV, RESOURCE_NAV, ROUTE_AVAILABILITY, routeHref, USER_ACTIONS, USER_NAV } from "@/config/navigation";
 
 describe("navigation availability", () => {
   it("enables Explore and Sections for P5-01 and Search for P6-10", () => {
@@ -39,5 +39,50 @@ describe("navigation availability", () => {
       const entry = USER_NAV.find((candidate) => candidate.id === id)!;
       expect(entry.available).toBe(false);
     }
+  });
+
+  it("groups every available header entry into Browse or Resources, never a dead end", () => {
+    expect(BROWSE_NAV.map((entry) => entry.id)).toEqual(["explore", "websites", "sections", "mobile"]);
+    expect(RESOURCE_NAV.map((entry) => entry.id)).toEqual(["pages", "categories"]);
+    const grouped = new Set([...BROWSE_NAV, ...RESOURCE_NAV].map((entry) => entry.id));
+    for (const entry of availableEntries(PRIMARY_NAV)) {
+      // The search entry is owned by the header pill / compact icon instead.
+      if (entry.id === "search") continue;
+      expect(grouped.has(entry.id)).toBe(true);
+    }
+  });
+});
+
+describe("isNavEntryActive", () => {
+  const entry = (id: string) => [...BROWSE_NAV, ...RESOURCE_NAV].find((candidate) => candidate.id === id)!;
+  const search = (query = "") => new URLSearchParams(query);
+
+  it("highlights index entries on their detail pages", () => {
+    expect(isNavEntryActive(entry("websites"), "en", "/en/sources", search())).toBe(true);
+    expect(isNavEntryActive(entry("websites"), "en", "/en/sources/acme", search())).toBe(true);
+    expect(isNavEntryActive(entry("websites"), "en", "/en/explore", search())).toBe(false);
+    expect(isNavEntryActive(entry("pages"), "en", "/en/pages/some-page", search())).toBe(true);
+    expect(isNavEntryActive(entry("categories"), "en", "/en/categories", search())).toBe(true);
+  });
+
+  it("gives the plain and filtered feed to Sections, not Explore", () => {
+    expect(isNavEntryActive(entry("sections"), "en", "/en/explore", search())).toBe(true);
+    expect(isNavEntryActive(entry("sections"), "en", "/en/explore", search("styleId=minimal"))).toBe(true);
+    expect(isNavEntryActive(entry("explore"), "en", "/en/explore", search())).toBe(false);
+    expect(isNavEntryActive(entry("mobile"), "en", "/en/explore", search())).toBe(false);
+  });
+
+  it("gives the mobile view to Mobile only", () => {
+    const mobile = search("device=mobile");
+    expect(isNavEntryActive(entry("mobile"), "en", "/en/explore", mobile)).toBe(true);
+    expect(isNavEntryActive(entry("sections"), "en", "/en/explore", mobile)).toBe(false);
+    expect(isNavEntryActive(entry("explore"), "en", "/en/explore", mobile)).toBe(false);
+  });
+
+  it("falls back to Explore for /explore views with no header entry, like OG Images", () => {
+    const og = search("formatId=og-image");
+    expect(isNavEntryActive(entry("explore"), "en", "/en/explore", og)).toBe(true);
+    expect(isNavEntryActive(entry("sections"), "en", "/en/explore", og)).toBe(false);
+    expect(isNavEntryActive(entry("mobile"), "en", "/en/explore", og)).toBe(false);
   });
 });

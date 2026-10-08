@@ -12,7 +12,7 @@ export function SiteFooter({ locale }: { locale: SupportedLocale }) {
       <Container className="grid gap-8 py-8 sm:grid-cols-[1fr_auto] sm:items-end">
         <div>
           <Link href={routeHref(locale, "home")} prefetch={false} aria-label={t(locale, "shell.home")} className="inline-flex rounded-sm focus-visible:outline-none">
-            <Wordmark locale={locale} />
+            <Wordmark />
           </Link>
           <p className="mt-3 max-w-sm text-sm text-muted-foreground">{t(locale, "design.footerNote")}</p>
         </div>

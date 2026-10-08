@@ -101,6 +101,34 @@ calculation, and height estimation unchanged. Quick View is image-only;
 collections remain Phase 08 work. No taxonomy dimensions or PageCard/SourceCard
 behavior were changed.
 
+## Figma / recent.design reimagining handoff
+
+The feed/header/cards/Sources work above is built on the extended taxonomy
+(typography, color, stack, format + 4 industries). Later work must keep every
+filter, pill, chip, suggestion, and inference rule on that config — no new
+value without a taxonomy entry first. Remaining Figma items and their owners:
+
+- Collections (Phase 08) still pending; the header avatar opens the sign-in
+  explanation until real accounts exist.
+- Homepage content (Phase 09) is a separate in-progress stream (`home/`
+  feature); the D3 hero lives on the Sources index so the two do not collide.
+  The jobs teaser moves to the homepage when that stream lands it.
+- The Figma `+`/bookmark header actions and a rotating sponsor backend wait
+  for submission/collections/billing routes.
+- Card avatar stays 07b (bottom-left circular monogram) until a deliberate
+  decision moves it to the Figma top-left rounded square.
+
+## HeroUI handoff
+
+HeroUI v3 pilot + expand are landed (Chip, Skeleton, Drawer, Badge, Input,
+Tabs, Select). Deliberately NOT migrated: Button (cva + `asChild` SPA links +
+Figma overlay spec), Breadcrumb (SPA links), Toggle/ToggleGroup (radiogroup
+contract), Tooltip (nesting), search internals, masonry, SaveButton logic,
+sonner. Any future swap must preserve the asserted aria/i18n/routing contract
+first — see BUG-017/018/019 for the failure shapes. Real Stripe screenshots
+remain rejected (fictional-brands rule, `.example` URLs, §61); the Nimbus Pay
+fidelity theme in `generate-mock-assets.mjs` is the approved stand-in.
+
 ## Deliberately deferred
 
 - Arabic UI, RTL rendering, Arabic aliases, and `/ar` are Phase 11 work. Arabic

@@ -1,4 +1,4 @@
-import { DEVICES, DIRECTIONS, INDUSTRIES, LANGUAGES, SECTION_TYPES, STYLES, getTaxonomyEntry } from "@/config/taxonomy";
+import { COLORS, DEVICES, DIRECTIONS, FORMATS, INDUSTRIES, LANGUAGES, SECTION_TYPES, STACKS, STYLES, TYPOGRAPHIES, getTaxonomyEntry } from "@/config/taxonomy";
 import { t } from "@/i18n/messages";
 import type { SupportedLocale } from "@/i18n/config";
 import { serializeExploreParams } from "@/lib/explore-state";
@@ -360,6 +360,10 @@ export function buildCategoriesIndex(locale: SupportedLocale): CategoriesIndexDa
   const sectionTypeCounts = countBy((section) => section.sectionTypeId);
   const industryCounts = countBy((section) => section.industryId);
   const styleCounts = countBy((section) => section.styleId);
+  const typographyCounts = countBy((section) => section.typographyId);
+  const colorCounts = countBy((section) => section.colorId);
+  const stackCounts = countBy((section) => section.stackId);
+  const formatCounts = countBy((section) => section.formatId);
 
   const entries = (
     taxonomy: typeof SECTION_TYPES,
@@ -388,6 +392,26 @@ export function buildCategoriesIndex(locale: SupportedLocale): CategoriesIndexDa
       id: "styles",
       title: t(locale, "explore.style"),
       entries: entries(STYLES, styleCounts, (id) => ({ styleId: id })),
+    },
+    {
+      id: "typographies",
+      title: t(locale, "explore.typography"),
+      entries: entries(TYPOGRAPHIES, typographyCounts, (id) => ({ typographyId: id })),
+    },
+    {
+      id: "colors",
+      title: t(locale, "explore.color"),
+      entries: entries(COLORS, colorCounts, (id) => ({ colorId: id })),
+    },
+    {
+      id: "stacks",
+      title: t(locale, "explore.stack"),
+      entries: entries(STACKS, stackCounts, (id) => ({ stackId: id })),
+    },
+    {
+      id: "formats",
+      title: t(locale, "explore.format"),
+      entries: entries(FORMATS, formatCounts, (id) => ({ formatId: id })),
     },
   ];
 

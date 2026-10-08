@@ -29,6 +29,10 @@ const createFacets = (sections: Section[]): SearchFacets => {
     sectionTypes: facet(sections.map((section) => section.sectionTypeId)),
     industries: facet(sections.map((section) => section.industryId)),
     styles: facet(sections.map((section) => section.styleId)),
+    typographies: facet(sections.map((section) => section.typographyId)),
+    colors: facet(sections.map((section) => section.colorId)),
+    stacks: facet(sections.map((section) => section.stackId)),
+    formats: facet(sections.map((section) => section.formatId)),
     languages: facet(sections.map((section) => section.language)),
     devices: sections.reduce<Record<string, number>>((counts, section) => {
       for (const device of ["desktop", "mobile"] as const) {
@@ -54,6 +58,10 @@ export const querySections = (sections: Section[], sources: Source[], request: S
     return (!request.sectionTypeId || section.sectionTypeId === request.sectionTypeId)
       && (!request.industryId || section.industryId === request.industryId)
       && (!request.styleId || section.styleId === request.styleId)
+      && (!request.typographyId || section.typographyId === request.typographyId)
+      && (!request.colorId || section.colorId === request.colorId)
+      && (!request.stackId || section.stackId === request.stackId)
+      && (!request.formatId || section.formatId === request.formatId)
       && (!request.language || section.language === request.language)
       && (!request.direction || section.direction === request.direction)
       && (!request.theme || section.themeId === request.theme)

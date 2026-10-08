@@ -38,6 +38,54 @@ const getSectionHeight = (type: string, device: "desktop" | "mobile") => {
 
 const getPageBlueprint = (pageId: string) => manifest.pages.find((page) => page.id === pageId);
 
+/**
+ * Deterministic design-attribute derivation, in the same spirit as
+ * SECTION_HEIGHTS: the manifest describes style per section and the stack per
+ * source, and these tables project the Figma filter dimensions (Typography,
+ * Color, Stack) from that data. Every value resolves to a real taxonomy entry,
+ * so no filter pill ships without data behind it.
+ */
+const TYPOGRAPHY_BY_STYLE: Record<string, string> = {
+  minimal: "sans",
+  modern: "sans",
+  dark: "sans",
+  light: "sans",
+  editorial: "serif",
+  brutalist: "mono",
+  gradient: "sans",
+  colorful: "display",
+  monochrome: "mono",
+  illustration: "display",
+  typography: "serif",
+};
+
+const COLOR_BY_STYLE: Record<string, string> = {
+  minimal: "neutral",
+  modern: "blue",
+  dark: "violet",
+  light: "neutral",
+  editorial: "green",
+  brutalist: "monochrome",
+  gradient: "rose",
+  colorful: "orange",
+  monochrome: "monochrome",
+  illustration: "blue",
+  typography: "neutral",
+};
+
+const STACK_BY_SOURCE: Record<string, string> = {
+  "source-flowbase": "nextjs",
+  "source-nimbus-pay": "react",
+  "source-arcadia-docs": "tailwind",
+  "source-cloudloom": "svelte",
+  "source-brightloom": "vue",
+  "source-cedarline": "webflow",
+  "source-rakaiz": "wordpress",
+  "source-subul": "framer",
+  "source-rafif": "react",
+  "source-papercrane": "nextjs",
+};
+
 const getPageDimensions = (page: ManifestPage, device: "desktop" | "mobile") => ({
   width: device === "desktop" ? DESKTOP_WIDTH : MOBILE_WIDTH,
   height: page.sections.reduce((total, section) => total + getSectionHeight(section.type, device), 0),
@@ -71,6 +119,10 @@ export const MOCK_SECTIONS: Section[] = manifest.pages.flatMap((page) => {
     direction: page.direction as Direction,
     industryId: source?.industryId ?? "saas",
     styleId: section.style,
+    typographyId: TYPOGRAPHY_BY_STYLE[section.style] ?? "sans",
+    colorId: COLOR_BY_STYLE[section.style] ?? "neutral",
+    stackId: STACK_BY_SOURCE[page.sourceId] ?? "react",
+    formatId: section.type === "hero" ? "og-image" : "section",
     themeId: section.theme as Theme,
     categoryId: getCategoryId(source?.industryId ?? "saas"),
     tags: section.tags,

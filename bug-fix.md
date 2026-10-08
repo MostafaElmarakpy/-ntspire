@@ -142,6 +142,90 @@ This file contains only real bugs discovered during development or testing.
 - Tests: The unchanged mobile Quick View e2e test passed; the full production and development e2e suites passed.
 - Notes: Masonry column math and its height estimator are unchanged.
 
+### BUG-015 — Quick View e2e measured the card before first layout
+
+- Status: Fixed
+- Severity: Low
+- Area: Explore e2e (Quick View height-stability assertion)
+- Date: 2026-10-08
+- Reproduction: Run the full `tests/e2e/explore.spec.ts` file; the mobile "Quick View is image-only" test intermittently failed with a height diff of exactly one full card (~188px). Isolated runs passed.
+- Expected: The pre/post Quick View card heights match within 1px.
+- Actual: The first `boundingBox()` occasionally caught the pre-layout card (zero box / null), so the diff equaled the whole card height. Waiting on image `complete` did not help — the race is first layout, not image load.
+- Root Cause: The test measured immediately after `goto` with no layout precondition, so under full-file timing it could read the card before first layout.
+- Fix: Poll `getBoundingClientRect().height > 0` on the first card before measuring. Same assertion, stable precondition; no behavior weakened.
+- Tests: `tests/e2e/explore.spec.ts` 26/26 green on consecutive full-file runs (desktop + mobile).
+- Notes: Pre-existing flake, unrelated to the Figma/recent.design restyle; steady-state card geometry verified identical before/after Quick View.
+
+### BUG-016 — Exported header logo triggered an LCP console warning
+
+- Status: Fixed
+- Severity: Low
+- Area: Brand logo (WS2), production e2e clean-run
+- Date: 2026-10-08
+- Reproduction: Run the dev-gallery e2e suite with the Figma-exported SVG wordmark in the header.
+- Expected: No console warnings under the clean-run fixture.
+- Actual: Next.js warned that `/brand/ntspire-logo.svg` was the LCP without `loading="eager"`, failing every mobile gallery test via the fixture.
+- Root Cause: The new above-the-fold `<Image>` had no priority hint.
+- Fix: `priority` on the Wordmark image.
+- Tests: `gallery.dev.spec.ts` 19 passed, 1 skipped.
+- Notes: None.
+
+### BUG-017 — HeroUI Drawer Root without a Trigger warns on every page
+
+- Status: Fixed
+- Severity: Medium
+- Area: HeroUI pilot (mobile nav, explore filter sheet), dev clean-run
+- Date: 2026-10-08
+- Reproduction: Open any page on the dev server; console shows "A PressResponder was rendered without a pressable child".
+- Expected: No console warnings under the clean-run fixture.
+- Actual: RAC `DialogTrigger` (rendered by HeroUI `Drawer.Root`) wraps all children in a PressResponder; with no `Drawer.Trigger` child nothing pressable registers, so the dev-only warning fires on every page load (production strips it, which is why only dev-config suites failed).
+- Root Cause: Both drawers were opened from external buttons with a trigger-less Root.
+- Fix: The open buttons moved inside Root as `Drawer.Trigger` (our visual classes preserved; RAC Button passes `onClick` through, so unit tests using `fireEvent.click` still pass). Verified via a Playwright console probe: warning gone.
+- Tests: `design-system.dev.spec.ts` 4/4; `mobile-nav-menu.test.tsx`, `explore-filters.test.tsx` green.
+- Notes: Same fix also removed a strict-mode hazard class (background no longer competes); the two remaining e2e scoping tweaks (menu link, `#main-content` Clear) are documented in the phase report.
+
+### BUG-018 — HeroUI Badge defaults to an absolute corner dot
+
+- Status: Fixed
+- Severity: Medium
+- Area: HeroUI pilot (Badge), 375px overflow guard
+- Date: 2026-10-08
+- Reproduction: Run `design-system.dev.spec.ts`; the mobile overflow assertion fails with a `badge--top-right` span at x 326..391.
+- Expected: Badges render as inline text pills.
+- Actual: HeroUI's badge variants default `placement: "top-right"` (absolute + translate) with no static option, so every pill positioned itself absolutely and overflowed small viewports.
+- Root Cause: Assumed pill rendering; the primitive is a dot-badge with opt-out nowhere.
+- Fix: Our wrapper pins `static [transform:none]` (utilities layer beats the components-layer placement rule). All our usages are text pills, so no dot use-case is lost.
+- Tests: `design-system.dev.spec.ts` overflow + axe green; unit suite unchanged.
+- Notes: None.
+
+### BUG-019 — Assumed HeroUI Breadcrumbs could host next/link via render function
+
+- Status: Fixed (reverted)
+- Severity: High
+- Area: HeroUI expand (Breadcrumb), detail routes
+- Date: 2026-10-08
+- Reproduction: Open any detail route; the breadcrumb section throws ("Functions are not valid as a React child" via error boundary).
+- Expected: Breadcrumbs render SPA links with the tested landmark/current-page contract.
+- Actual: RAC `BreadcrumbsItem` takes plain children into its own plain `<a>` (full-page reloads); passing a render function crashes.
+- Root Cause: Wrong API assumption; HeroUI Breadcrumbs cannot host `next/link` without giving up client-side navigation.
+- Fix: Reverted `ui/breadcrumb.tsx`, `detail-breadcrumbs.tsx`, and the catalogue demo to HEAD; removed the breadcrumbs CSS import. Breadcrumb joins Button/Toggle as primitives HeroUI must not own (SPA links are non-negotiable).
+- Tests: `detail/components.test.tsx` breadcrumb assertions pass; detail e2e breadcrumb flows green.
+- Notes: Same pass also reverted Tooltip (HeroUI's forced trigger wrapper nested interactives → axe `nested-interactive`), scoped `--muted` for tab labels (HeroUI reads it as secondary text; ours is a surface tint), and labeled the demo Select. Toggle/ToggleGroup were left in place deliberately: RAC renders `button`/`aria-pressed`, which cannot keep the asserted `radiogroup`/`radio` contract.
+
+### BUG-020 — Full-width actions overlay intercepted the top-left avatar
+
+- Status: Fixed
+- Severity: High
+- Area: Figma Card 19:325 implementation (SectionCard overlays)
+- Date: 2026-10-08
+- Reproduction: Open `/en/explore`, click any card's source avatar.
+- Expected: Navigates to the source page without opening the detail modal.
+- Actual: Click never lands — the `inset-x-0` actions container covers the whole top row, and on hover it flips to `pointer-events-auto`, swallowing avatar clicks.
+- Root Cause: The old bottom-placed monogram never overlapped the top actions row; moving the avatar top-left (Figma geometry) put it under the full-width overlay container.
+- Fix: Actions group is now `end-0` auto-width (hugs its buttons, as the Figma action group does) instead of `inset-x-0`.
+- Tests: `explore.spec.ts` source-avatar test (desktop + mobile) green; full Explore 26/26.
+- Notes: Found by the existing avatar test — no new test needed.
+
 ## Bug Template
 
 ### BUG-001 — Title

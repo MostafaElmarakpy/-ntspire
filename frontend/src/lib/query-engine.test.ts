@@ -23,6 +23,31 @@ describe("querySections", () => {
     expect(result.facets.languages.ar).toBe(result.total);
   });
 
+  it("filters the Figma dimensions and reports their facets", () => {
+    const dark = querySections(MOCK_SECTIONS, MOCK_SOURCES, { styleId: "dark" });
+    expect(dark.items.length).toBeGreaterThan(0);
+    expect(dark.items.every((section) => section.styleId === "dark")).toBe(true);
+
+    const violet = querySections(MOCK_SECTIONS, MOCK_SOURCES, { colorId: "violet" });
+    expect(violet.items.length).toBeGreaterThan(0);
+    expect(violet.items.every((section) => section.colorId === "violet")).toBe(true);
+    expect(violet.facets.colors.violet).toBe(violet.total);
+
+    const react = querySections(MOCK_SECTIONS, MOCK_SOURCES, { stackId: "react" });
+    expect(react.items.length).toBeGreaterThan(0);
+    expect(react.items.every((section) => section.stackId === "react")).toBe(true);
+    expect(react.facets.stacks.react).toBe(react.total);
+
+    const serif = querySections(MOCK_SECTIONS, MOCK_SOURCES, { typographyId: "serif" });
+    expect(serif.items.length).toBeGreaterThan(0);
+    expect(serif.items.every((section) => section.typographyId === "serif")).toBe(true);
+
+    const og = querySections(MOCK_SECTIONS, MOCK_SOURCES, { formatId: "og-image" });
+    expect(og.items.length).toBeGreaterThan(0);
+    expect(og.items.every((section) => section.sectionTypeId === "hero")).toBe(true);
+    expect(og.facets.formats["og-image"]).toBe(og.total);
+  });
+
   it("sorts, paginates at boundaries, and returns facets", () => {
     const first = querySections(MOCK_SECTIONS, MOCK_SOURCES, { sortBy: "latest", limit: 2 });
     expect(first.items).toHaveLength(2);

@@ -98,8 +98,8 @@ export function PageDetail({ locale, detail, initialDevice }: PageDetailProps) {
       />
 
       <header className="space-y-3">
-        <p className="text-xs font-semibold tracking-wide text-primary uppercase">{detail.sourceName}</p>
-        <h1 className="max-w-4xl font-serif text-3xl leading-tight sm:text-4xl">{detail.title}</h1>
+        <p className="text-xs font-semibold uppercase tracking-[0.02em] text-muted-foreground">{detail.sourceName}</p>
+        <h1 className="max-w-4xl text-[26px] font-medium leading-[1.2] tracking-[-0.01em] text-foreground sm:text-[28px]">{detail.title}</h1>
       </header>
 
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-10">
@@ -125,7 +125,7 @@ export function PageDetail({ locale, detail, initialDevice }: PageDetailProps) {
       </div>
 
       <section aria-label={t(locale, "detail.pageSectionsTitle")} className="space-y-5">
-        <h2 className="font-serif text-2xl">{t(locale, "detail.pageSectionsTitle")}</h2>
+        <h2 className="text-base font-semibold tracking-[-0.01em]">{t(locale, "detail.pageSectionsTitle")}</h2>
         {view.sections.length > 0
           ? (
             <ol className="grid gap-3 sm:grid-cols-2">

@@ -47,6 +47,10 @@ export interface Section {
   direction: Direction;
   industryId: string;
   styleId: string;
+  typographyId: string;
+  colorId: string;
+  stackId: string;
+  formatId: string;
   themeId: Theme;
   categoryId: string;
   tags: string[];
@@ -117,6 +121,10 @@ export interface SearchFacets {
   sectionTypes: Record<string, number>;
   industries: Record<string, number>;
   styles: Record<string, number>;
+  typographies: Record<string, number>;
+  colors: Record<string, number>;
+  stacks: Record<string, number>;
+  formats: Record<string, number>;
   languages: Record<string, number>;
   devices: Record<string, number>;
   directions: Record<string, number>;
