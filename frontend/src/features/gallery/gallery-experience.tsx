@@ -18,7 +18,7 @@ export function GalleryExperience({ locale, data }: GalleryExperienceProps) {
   return (
     <div className="space-y-14">
       <section aria-labelledby="gallery-sections-heading">
-        <h2 id="gallery-sections-heading" className="mb-5 font-serif text-2xl">{t(locale, "gallery.sectionsTitle")}</h2>
+        <h2 id="gallery-sections-heading" className="mb-6 text-base font-semibold tracking-[-0.01em]">{t(locale, "gallery.sectionsTitle")}</h2>
         <MasonryGrid
           items={data.sections}
           getKey={(card) => card.id}
@@ -27,12 +27,17 @@ export function GalleryExperience({ locale, data }: GalleryExperienceProps) {
             <SectionCard card={card} locale={locale} openHref={`/${locale}/sections/${card.id}`} priority={priority} />
           )}
           label={t(locale, "gallery.sectionsLabel")}
-          eagerRows={3}
+          // Dev QA surface: the suites scroll the whole dataset (and capture
+          // it for the phase report), so every section image loads eagerly.
+          // Otherwise a tall scrolled-to image wins Largest Contentful Paint
+          // while still marked lazy, tripping Next's dev warning under the
+          // clean-run fixture. Production feeds keep lazy below-the-fold.
+          eagerRows={12}
         />
       </section>
 
       <section aria-labelledby="gallery-pages-heading">
-        <h2 id="gallery-pages-heading" className="mb-5 font-serif text-2xl">{t(locale, "gallery.pagesTitle")}</h2>
+        <h2 id="gallery-pages-heading" className="mb-6 text-base font-semibold tracking-[-0.01em]">{t(locale, "gallery.pagesTitle")}</h2>
         <MasonryGrid
           items={data.pages}
           getKey={(card) => card.id}
@@ -43,7 +48,7 @@ export function GalleryExperience({ locale, data }: GalleryExperienceProps) {
       </section>
 
       <section aria-labelledby="gallery-sources-heading">
-        <h2 id="gallery-sources-heading" className="mb-5 font-serif text-2xl">{t(locale, "gallery.sourcesTitle")}</h2>
+        <h2 id="gallery-sources-heading" className="mb-6 text-base font-semibold tracking-[-0.01em]">{t(locale, "gallery.sourcesTitle")}</h2>
         <MasonryGrid
           items={data.sources}
           getKey={(card) => card.id}

@@ -1,4 +1,4 @@
-import { INDUSTRIES, SECTION_TYPES, STYLES } from "@/config/taxonomy";
+import { COLORS, INDUSTRIES, SECTION_TYPES, STACKS, STYLES, TYPOGRAPHIES } from "@/config/taxonomy";
 import { normalizeSearchTerm } from "@/lib/search-parser";
 import type { Source } from "@/types/domain";
 import type { SearchSuggestion } from "@/types/services";
@@ -66,6 +66,9 @@ export function buildSuggestions(
     { kind: "sectionType", entries: toSuggestionSources(SECTION_TYPES) },
     { kind: "industry", entries: toSuggestionSources(INDUSTRIES) },
     { kind: "style", entries: toSuggestionSources(STYLES) },
+    { kind: "typography", entries: toSuggestionSources(TYPOGRAPHIES) },
+    { kind: "color", entries: toSuggestionSources(COLORS) },
+    { kind: "stack", entries: toSuggestionSources(STACKS) },
     { kind: "source", entries: sources.map((source) => ({ id: source.id, terms: [source.name] })) },
   ];
 

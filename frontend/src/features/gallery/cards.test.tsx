@@ -1,9 +1,8 @@
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { SaveButton } from "@/components/save-button";
 import { configureSavedStore, resetSavedStore } from "@/lib/saved-store";
 import { createMockSaveService, type SaveService } from "@/lib/save-service";
-import type { Device } from "@/types/domain";
 import { PageCard } from "./page-card";
 import { SectionCard } from "./section-card";
 import { SourceCard } from "./source-card";
@@ -70,34 +69,13 @@ afterEach(() => {
 });
 
 describe("SectionCard", () => {
-  it("keeps the caption to section type and source name", () => {
+  it("is an image-only card with no caption text", () => {
     const { container } = render(<SectionCard card={sectionCard()} locale="en" openHref="#card-section-1" />);
 
-    const caption = container.querySelector("article > div p");
-    expect(caption).toHaveTextContent("Hero");
-    expect(caption).toHaveTextContent("Northwind Ledger");
-    expect(caption).not.toHaveTextContent("editorial");
+    expect(container.querySelector("article p")).toBeNull();
+    expect(screen.queryByText("Hero", { exact: true })).not.toBeInTheDocument();
+    expect(screen.queryByText("Northwind Ledger", { exact: true })).not.toBeInTheDocument();
     expect(screen.queryByRole("list", { name: "Reference tags" })).not.toBeInTheDocument();
-  });
-
-  it("keeps a long title on one line so the card cannot outgrow its column", () => {
-    const title = "A very long editorial headline that would otherwise wrap across several lines";
-    const { container } = render(<SectionCard card={sectionCard({ title })} locale="en" openHref="#card-section-1" />);
-
-    expect(screen.getByRole("link", { name: `Open reference: ${title}` })).toBeInTheDocument();
-    expect(container.querySelector("article > div p")).toHaveClass("truncate");
-  });
-
-  it.each<{ devices: Device[]; devicesLabel: string }>([
-    { devices: ["desktop", "mobile"], devicesLabel: "Desktop and mobile" },
-    { devices: ["desktop"], devicesLabel: "Desktop only" },
-    { devices: ["mobile"], devicesLabel: "Mobile only" },
-  ])("keeps the slim caption independent of device availability ($devicesLabel)", ({ devices, devicesLabel }) => {
-    const { container } = render(<SectionCard card={sectionCard({ devices, devicesLabel })} locale="en" openHref="#card-section-1" />);
-    const caption = container.querySelector("article > div p");
-    expect(caption).toHaveTextContent("Hero");
-    expect(caption).toHaveTextContent("Northwind Ledger");
-    expect(caption).not.toHaveTextContent(devicesLabel);
   });
 
   it("renders an uncropped, naturally sized image", () => {
@@ -117,7 +95,9 @@ describe("SectionCard", () => {
     expect(screen.getByRole("group", { name: "Reference actions" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Save reference" })).toHaveAttribute("aria-pressed", "false");
     expect(screen.getByRole("link", { name: "Open reference: Editorial hero with an oversized serif headline" })).toHaveAttribute("href", "#card-section-1");
-    expect(screen.getByRole("button", { name: "Quick view image: Editorial hero with an oversized serif headline" })).toBeInTheDocument();
+    const arrow = screen.getByRole("link", { name: "Editorial hero with an oversized serif headline" });
+    expect(arrow).toHaveAttribute("href", "#card-section-1");
+    expect(arrow).toHaveAttribute("data-section-card-arrow", "section-1");
   });
 
   it("links the over-image source avatar to the source without bubbling to the card", () => {
@@ -140,14 +120,16 @@ describe("SectionCard", () => {
     expect(screen.getByRole("group", { name: "Reference actions" })).toHaveClass("absolute");
   });
 
-  it("opens an independent image-only Quick View lightbox", async () => {
-    render(<SectionCard card={sectionCard()} locale="en" openHref="#card-section-1" />);
+  it("opens the reference from the arrow action without bubbling to the card", () => {
+    const parentClick = vi.fn();
+    render(<div onClick={parentClick}><SectionCard card={sectionCard()} locale="en" openHref="#card-section-1" /></div>);
 
-    fireEvent.click(screen.getByRole("button", { name: "Quick view image: Editorial hero with an oversized serif headline" }));
-    const dialog = await screen.findByRole("dialog", { name: "Quick view: Editorial hero with an oversized serif headline" });
-    expect(within(dialog).getByRole("img", { name: image.alt })).toBeVisible();
-    expect(within(dialog).queryByText("Hero")).not.toBeInTheDocument();
-    expect(within(dialog).queryByText("Northwind Ledger")).not.toBeInTheDocument();
+    const arrow = screen.getByRole("link", { name: "Editorial hero with an oversized serif headline" });
+    expect(arrow).toHaveAttribute("href", "#card-section-1");
+    const click = new MouseEvent("click", { bubbles: true, cancelable: true });
+    click.preventDefault();
+    arrow.dispatchEvent(click);
+    expect(parentClick).not.toHaveBeenCalled();
   });
 
   it("marks an Arabic reference with the dev-only Arabic chip", () => {

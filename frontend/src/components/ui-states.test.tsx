@@ -11,6 +11,10 @@ describe("design system components", () => {
     render(<FilterChip label="Editorial" selected={false} removeLabel="Remove Editorial filter" onSelect={onSelect} onRemove={onRemove} />);
     const chip = screen.getByRole("button", { name: "Editorial" });
     expect(chip).toHaveAttribute("aria-pressed", "false");
+    // The pill container is the HeroUI Chip primitive, not a plain span.
+    const pill = chip.closest('[data-slot="chip"]');
+    expect(pill).not.toBeNull();
+    expect(pill).toHaveClass("chip");
     fireEvent.click(chip);
     fireEvent.click(screen.getByRole("button", { name: "Remove Editorial filter" }));
     expect(onSelect).toHaveBeenCalledOnce();
@@ -33,6 +37,9 @@ describe("design system components", () => {
   it("reserves section skeleton space from required dimensions", () => {
     render(<SectionSkeleton width={1440} height={800} label="Section card loading preview" />);
     expect(screen.getByRole("status", { name: "Section card loading preview" })).toBeVisible();
-    expect(screen.getByRole("status").firstElementChild).toHaveStyle({ aspectRatio: "1440 / 800" });
+    const block = screen.getByRole("status").firstElementChild;
+    expect(block).toHaveStyle({ aspectRatio: "1440 / 800" });
+    // The block is the HeroUI Skeleton primitive, not a plain div.
+    expect(block).toHaveClass("skeleton");
   });
 });

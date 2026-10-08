@@ -57,12 +57,19 @@ const SUGGESTION_DIMENSIONS: Record<Exclude<SearchSuggestion["kind"], "source">,
   sectionType: "sectionTypeId",
   industry: "industryId",
   style: "styleId",
+  typography: "typographyId",
+  color: "colorId",
+  stack: "stackId",
 };
 
 const EMPTY_FACETS: SearchFacets = {
   sectionTypes: {},
   industries: {},
   styles: {},
+  typographies: {},
+  colors: {},
+  stacks: {},
+  formats: {},
   languages: {},
   devices: {},
   directions: {},
@@ -78,6 +85,9 @@ function filterLabelKey(dimension: FilterDimension, value: string): MessageKey |
     case "sectionTypeId": return getTaxonomyEntry("sectionType", value)?.labelKey;
     case "industryId": return getTaxonomyEntry("industry", value)?.labelKey;
     case "styleId": return getTaxonomyEntry("style", value)?.labelKey;
+    case "typographyId": return getTaxonomyEntry("typography", value)?.labelKey;
+    case "colorId": return getTaxonomyEntry("color", value)?.labelKey;
+    case "stackId": return getTaxonomyEntry("stack", value)?.labelKey;
     case "language": return LANGUAGES.find((entry) => entry.id === value)?.labelKey;
     case "direction": return DIRECTIONS.find((entry) => entry.id === value)?.labelKey;
     case "device": return DEVICES.find((entry) => entry.id === value)?.labelKey;
@@ -95,6 +105,9 @@ function withFilter(filters: OverlayFilters, dimension: FilterDimension, value: 
     case "sectionTypeId": return getTaxonomyEntry("sectionType", value) ? { ...filters, sectionTypeId: value } : filters;
     case "industryId": return getTaxonomyEntry("industry", value) ? { ...filters, industryId: value } : filters;
     case "styleId": return getTaxonomyEntry("style", value) ? { ...filters, styleId: value } : filters;
+    case "typographyId": return getTaxonomyEntry("typography", value) ? { ...filters, typographyId: value } : filters;
+    case "colorId": return getTaxonomyEntry("color", value) ? { ...filters, colorId: value } : filters;
+    case "stackId": return getTaxonomyEntry("stack", value) ? { ...filters, stackId: value } : filters;
     case "language": { const hit = LANGUAGES.find((entry) => entry.id === value)?.id; return hit ? { ...filters, language: hit } : filters; }
     case "direction": { const hit = DIRECTIONS.find((entry) => entry.id === value)?.id; return hit ? { ...filters, direction: hit } : filters; }
     case "device": { const hit = DEVICES.find((entry) => entry.id === value)?.id; return hit ? { ...filters, device: hit } : filters; }
@@ -492,6 +505,7 @@ export function SearchOverlay({
   compact = false,
   open: controlledOpen,
   onOpenChange,
+  shortcut = false,
 }: {
   locale: SupportedLocale;
   /** Omit to render no trigger; the parent then owns `open` and `onOpenChange`. */
@@ -499,6 +513,8 @@ export function SearchOverlay({
   compact?: boolean;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  /** Lets a custom trigger (e.g. the header search pill) own the `/` and ⌘K shortcuts. */
+  shortcut?: boolean;
 }) {
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
   const isControlled = controlledOpen !== undefined;
@@ -517,7 +533,7 @@ export function SearchOverlay({
    * only the primary, always-present trigger owns the global shortcut.
    * Registering it more than once would stack several overlays on one keypress.
    */
-  const ownsShortcut = !compact && triggerLabel !== undefined;
+  const ownsShortcut = shortcut || (!compact && triggerLabel !== undefined);
 
   useEffect(() => {
     if (!ownsShortcut) return;

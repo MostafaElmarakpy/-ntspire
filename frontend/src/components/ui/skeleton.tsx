@@ -1,10 +1,16 @@
+import { Skeleton as HeroUISkeleton, type SkeletonVariants } from "@heroui/react/skeleton"
 import { cn } from "cn"
 
-function Skeleton({ className, ...props }: React.ComponentProps<"div">) {
+interface SkeletonProps extends React.ComponentProps<"div"> {
+  animationType?: SkeletonVariants["animationType"]
+}
+
+function Skeleton({ animationType = "pulse", className, ...props }: SkeletonProps) {
   return (
-    <div
+    <HeroUISkeleton
+      animationType={animationType}
       data-slot="skeleton"
-      className={cn("animate-pulse rounded-md bg-accent", className)}
+      className={cn("rounded-md", className)}
       {...props}
     />
   )

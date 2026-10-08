@@ -1,9 +1,19 @@
 import * as React from "react"
+import { Input as HeroUIInput } from "@heroui/react/input"
 import { cn } from "cn"
 
+/**
+ * Text input on HeroUI's input primitive (which already renders
+ * `data-slot="input"`).
+ *
+ * HeroUI's input extends the native input props, so `onChange` stays a
+ * `ChangeEvent` — the search-overlay combobox keeps reading
+ * `event.target.value`, and `role`, `aria-*`, `placeholder`, `value`,
+ * `onKeyDown` and `ref` all land on the underlying `<input>` untouched.
+ */
 function Input({ className, type, ...props }: React.ComponentProps<"input">) {
   return (
-    <input
+    <HeroUIInput
       type={type}
       data-slot="input"
       className={cn(

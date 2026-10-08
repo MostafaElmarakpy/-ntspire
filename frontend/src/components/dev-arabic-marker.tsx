@@ -31,7 +31,7 @@ export function DevArabicMarker({ isArabic, locale }: { isArabic: boolean; local
   return (
     <span
       aria-hidden="true"
-      className="pointer-events-none absolute top-2 start-2 z-10 rounded-sm bg-muted px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground"
+      className="pointer-events-none absolute bottom-2 start-2 z-10 rounded-sm bg-muted px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground"
     >
       {t(locale, "dev.arabicMarker")}
     </span>

@@ -42,7 +42,7 @@ function SectionPreview({ locale, view }: { locale: SupportedLocale; view: Secti
     <figure className="min-w-0">
       <div
         className={isMobile
-          ? "mx-auto w-full max-w-[20rem] rounded-[2rem] border-4 border-foreground/80 bg-card p-2 shadow-sm"
+          ? "mx-auto w-full max-w-[20rem] rounded-[2rem] border-4 border-foreground/80 bg-card p-2 shadow-soft"
           : "overflow-hidden rounded-md border border-border bg-card"}
       >
         <Image
@@ -88,8 +88,8 @@ export function SectionDetail({ locale, detail, initialDevice }: SectionDetailPr
       />
 
       <header className="space-y-3">
-        <p className="text-xs font-semibold tracking-wide text-primary uppercase">{detail.sectionType}</p>
-        <h1 className="max-w-4xl font-serif text-3xl leading-tight sm:text-4xl">{detail.title}</h1>
+        <p className="text-xs font-semibold uppercase tracking-[0.02em] text-muted-foreground">{detail.sectionType}</p>
+        <h1 className="max-w-4xl text-[26px] font-medium leading-[1.2] tracking-[-0.01em] text-foreground sm:text-[28px]">{detail.title}</h1>
       </header>
 
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-10">
@@ -155,7 +155,7 @@ export function SectionDetail({ locale, detail, initialDevice }: SectionDetailPr
       {detail.related.length > 0
         ? (
           <section aria-label={t(locale, "detail.relatedTitle")}>
-            <h2 className="mb-5 font-serif text-2xl">{t(locale, "detail.relatedTitle")}</h2>
+            <h2 className="mb-5 text-base font-semibold tracking-[-0.01em]">{t(locale, "detail.relatedTitle")}</h2>
             <MasonryGrid
               items={detail.related}
               getKey={(card) => card.id}

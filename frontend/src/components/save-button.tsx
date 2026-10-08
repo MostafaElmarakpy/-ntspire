@@ -37,20 +37,20 @@ export function SaveButton({ sectionId, locale, presentation = "inline", classNa
   return (
     <Button
       type="button"
-      variant={presentation === "overlay" ? "secondary" : "outline"}
+      variant={presentation === "overlay" ? "overlay" : "outline"}
+      size={presentation === "overlay" ? "icon-overlay" : "default"}
       aria-pressed={saved}
       aria-label={label}
       disabled={pending}
       onClick={handleClick}
       className={cn(
-        "rounded-full border border-border bg-card/95 shadow-sm",
-        presentation === "overlay" ? "size-11" : "min-h-11 gap-2 px-4",
+        presentation === "overlay" ? undefined : "min-h-11 gap-2 px-4",
         className,
       )}
     >
       {saved
-        ? <BookmarkCheck className="size-5 fill-current" aria-hidden="true" />
-        : <Bookmark className="size-5" aria-hidden="true" />}
+        ? <BookmarkCheck className={presentation === "overlay" ? "size-4 fill-current" : "size-5 fill-current"} aria-hidden="true" />
+        : <Bookmark className={presentation === "overlay" ? "size-4" : "size-5"} aria-hidden="true" />}
       {presentation === "inline" ? <span>{visibleLabel}</span> : null}
     </Button>
   );

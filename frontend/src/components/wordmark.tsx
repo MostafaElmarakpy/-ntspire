@@ -1,6 +1,14 @@
-import { t } from "@/i18n/messages";
-import type { SupportedLocale } from "@/i18n/config";
+import Image from "next/image";
 
-export function Wordmark({ locale = "en" }: { locale?: SupportedLocale }) {
-  return <span className="font-serif text-[1.65rem] font-semibold leading-none">{t(locale, "wordmark")}</span>;
+export function Wordmark() {
+  return (
+    <Image
+      src="/brand/ntspire-logo.svg"
+      alt="ntspire"
+      width={500}
+      height={324}
+      priority
+      className="h-7 w-auto"
+    />
+  );
 }

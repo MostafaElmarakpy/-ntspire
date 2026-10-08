@@ -171,8 +171,10 @@ test("Arabic language and query parameters are applied and shown as removable ch
 test("Mobile navigation shortcut opens Explore with the mobile device filter", async ({ cleanPage }) => {
   await cleanPage.setViewportSize({ width: 390, height: 844 });
   await cleanPage.goto("/en");
-  await cleanPage.getByRole("button", { name: "Open navigation menu" }).click();
-  await cleanPage.getByRole("link", { name: "Mobile", exact: true }).click();
+  // Target the header navigation button specifically (not the sidebar one)
+  await cleanPage.locator("header").getByRole("button", { name: "Open navigation menu" }).click();
+  const menu = cleanPage.getByRole("dialog");
+  await menu.getByRole("link", { name: "Mobile", exact: true }).click();
 
   await expect(cleanPage).toHaveURL("/en/explore?device=mobile");
   await expect(cleanPage.getByRole("button", { name: "Remove filter Device: Mobile" })).toBeVisible();
@@ -266,35 +268,32 @@ test("card body opens the Section modal with adjacent Explore results and restor
   await expect(firstOpen).toBeFocused();
 });
 
-test("Quick View is image-only, independent, accessible, and dismissible", async ({ cleanPage }, testInfo) => {
+test("card overlays keep stable bounds and the arrow opens the detail modal", async ({ cleanPage }, testInfo) => {
   await cleanPage.goto("/en/explore");
   const card = cleanPage.locator("article").first();
+  // Wait for first layout before measuring: an early boundingBox can catch the
+  // pre-layout card (zero box) and flake the height comparison below.
+  await expect
+    .poll(async () => card.evaluate((el) => el.getBoundingClientRect().height))
+    .toBeGreaterThan(0);
   if (testInfo.project.name === "desktop") await card.hover();
-  const quickView = card.getByRole("button", { name: /^Quick view image:/ });
+  const arrow = card.getByRole("link", { name: "Nothing great is made alone", exact: true });
   const cardBounds = await card.boundingBox();
-  await quickView.click();
+  await expect(arrow).toHaveAttribute("href", /\/en\/sections\//);
 
-  const dialog = cleanPage.getByRole("dialog", { name: /^Quick view:/ });
-  await expect(dialog).toBeVisible();
-  await expect(dialog.getByRole("img")).toBeVisible();
-  await expect(dialog.getByRole("heading")).toHaveCount(1);
-  await expect(dialog.getByText("Hero", { exact: true })).toHaveCount(0);
-  await expect(cleanPage).toHaveURL(/\/en\/explore(?:\?|$)/);
   const afterBounds = await card.boundingBox();
   expect(Math.abs((afterBounds?.height ?? 0) - (cardBounds?.height ?? 0))).toBeLessThanOrEqual(1);
 
   const violations = await expectAccessible(cleanPage);
   expect(violations, JSON.stringify(violations.map(({ id, help }) => ({ id, help })))).toEqual([]);
 
+  await arrow.click();
+  const dialog = cleanPage.getByRole("dialog");
+  await expect(dialog).toBeVisible();
+  await expect(cleanPage).toHaveURL(/\/en\/sections\/section-papercrane-collaboration-1/);
   await cleanPage.keyboard.press("Escape");
   await expect(dialog).toHaveCount(0);
-  await expect(quickView).toBeFocused();
-
-  await quickView.click();
-  await expect(dialog).toBeVisible();
-  await cleanPage.locator('[data-slot="dialog-overlay"]').last().click({ position: { x: 3, y: 3 } });
-  await expect(dialog).toHaveCount(0);
-  await expect(quickView).toBeFocused();
+  await expect(cleanPage).toHaveURL("/en/explore");
 });
 
 test("a cold Section URL renders the standalone detail page, not a modal", async ({ cleanPage }) => {
@@ -325,7 +324,9 @@ test("loading, empty, and retryable error states follow mock query modes", async
   await openSidebar(cleanPage, viewport);
   await expect(sidebar(cleanPage, viewport).getByRole("region", { name: "Industries" })).toBeVisible();
   if (viewport === "mobile") await cleanPage.keyboard.press("Escape");
-  await cleanPage.getByRole("button", { name: "Clear filters" }).click();
+  // Scoped to the page: the exiting filter drawer still mounts its own Clear
+  // control until its exit animation finishes.
+  await cleanPage.locator("#main-content").getByRole("button", { name: "Clear filters" }).click();
   await expect(cleanPage).toHaveURL("/en/explore");
   await expect(cleanPage.getByText("Showing 12 of 42 references")).toBeVisible();
 

@@ -8,6 +8,6 @@ describe("English messages", () => {
   });
 
   it("translates supported message keys", () => {
-    expect(t("en", "home.title")).toBe("ntspire — Visual design references");
+    expect(t("en", "home.heroTitle")).toBe("Web design inspiration");
   });
 });

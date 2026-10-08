@@ -1,6 +1,9 @@
+import { Suspense } from "react";
 import Link from "next/link";
-import { availableEntries, PRIMARY_NAV, USER_ACTIONS } from "@/config/navigation";
+import { BROWSE_NAV, RESOURCE_NAV, USER_ACTIONS } from "@/config/navigation";
 import { Container } from "@/components/container";
+import { HeaderSearchPill } from "@/components/header-search-pill";
+import { HeaderNav, HeaderNavGroups } from "@/components/site-header-nav";
 import { MobileNavMenu } from "@/components/mobile-nav-menu";
 import { SearchOverlay } from "@/components/search-overlay";
 import { SignInDialog } from "@/components/sign-in-dialog";
@@ -9,33 +12,34 @@ import { t } from "@/i18n/messages";
 import type { SupportedLocale } from "@/i18n/config";
 import { routeHref } from "@/config/navigation";
 
+/**
+ * Borderless D2-style header: logo left, Browse/Resources nav groups, a
+ * centered search pill (desktop) opening the Phase 06 overlay, and icon
+ * actions right. The `+` and bookmark actions from the Figma are deferred:
+ * they have no submission/collections routes behind them yet, and the header
+ * never links to a dead end.
+ */
 export function SiteHeader({ locale }: { locale: SupportedLocale }) {
-  const navigation = availableEntries(PRIMARY_NAV);
   return (
-    <header className="border-b border-border bg-card">
-      <Container className="flex min-h-[4.5rem] items-center justify-between gap-4">
+    <header className="bg-background">
+      <Container className="flex min-h-16 items-center gap-3">
         <Link href={routeHref(locale, "home")} prefetch={false} aria-label={t(locale, "shell.home")} className="shrink-0 rounded-sm focus-visible:outline-none">
-          <Wordmark locale={locale} />
+          <Wordmark />
         </Link>
-        {navigation.length > 0 ? (
-          <nav aria-label={t(locale, "shell.primaryNavigation")} className="hidden items-center gap-5 lg:flex">
-            {navigation.map((entry) =>
-              entry.id === "search" ? (
-                <SearchOverlay key={entry.id} locale={locale} triggerLabel={t(locale, entry.labelKey)} />
-              ) : (
-                <Link key={entry.id} href={routeHref(locale, entry.route)} prefetch={false} className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
-                  {t(locale, entry.labelKey)}
-                </Link>
-              ),
-            )}
-          </nav>
+        {(BROWSE_NAV.length > 0 || RESOURCE_NAV.length > 0) ? (
+          <Suspense fallback={<HeaderNavGroups locale={locale} activeId={null} />}>
+            <HeaderNav locale={locale} />
+          </Suspense>
         ) : null}
-        <div className="flex items-center gap-2">
+        <div className="flex min-w-0 flex-1 items-center justify-center">
+          <HeaderSearchPill locale={locale} />
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
           <div className="hidden h-11 w-12 lg:block" aria-hidden="true" data-locale-switcher-slot />
-          <div className="lg:hidden">
+          <div className="md:hidden">
             <SearchOverlay locale={locale} triggerLabel={t(locale, "shell.search")} compact />
           </div>
-          {USER_ACTIONS.find((action) => action.id === "sign-in")?.available ? <SignInDialog locale={locale} /> : null}
+          {USER_ACTIONS.find((action) => action.id === "sign-in")?.available ? <SignInDialog locale={locale} presentation="icon" /> : null}
           <MobileNavMenu locale={locale} />
         </div>
       </Container>

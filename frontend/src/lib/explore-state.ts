@@ -1,12 +1,16 @@
 import type { Device, Direction, Locale, Theme } from "@/types/domain";
-import { DEVICES, DIRECTIONS, INDUSTRIES, LANGUAGES, SECTION_TYPES, STYLES, THEMES } from "@/config/taxonomy";
+import { COLORS, DEVICES, DIRECTIONS, FORMATS, INDUSTRIES, LANGUAGES, SECTION_TYPES, STACKS, STYLES, THEMES, TYPOGRAPHIES } from "@/config/taxonomy";
 import type { SearchRequest } from "@/types/services";
 
-export type ExploreState = Partial<Pick<SearchRequest, "q" | "sectionTypeId" | "industryId" | "styleId" | "language" | "direction" | "device" | "theme" | "sortBy">>;
+export type ExploreState = Partial<Pick<SearchRequest, "q" | "sectionTypeId" | "industryId" | "styleId" | "typographyId" | "colorId" | "stackId" | "formatId" | "language" | "direction" | "device" | "theme" | "sortBy">>;
 
 const validSectionIds = new Set(SECTION_TYPES.map((entry) => entry.id));
 const validIndustryIds = new Set(INDUSTRIES.map((entry) => entry.id));
 const validStyleIds = new Set(STYLES.map((entry) => entry.id));
+const validTypographyIds = new Set(TYPOGRAPHIES.map((entry) => entry.id));
+const validColorIds = new Set(COLORS.map((entry) => entry.id));
+const validStackIds = new Set(STACKS.map((entry) => entry.id));
+const validFormatIds = new Set(FORMATS.map((entry) => entry.id));
 const validLanguageIds = new Set(LANGUAGES.map((entry) => entry.id));
 const validDirectionIds = new Set(DIRECTIONS.map((entry) => entry.id));
 const validDeviceIds = new Set(DEVICES.map((entry) => entry.id));
@@ -43,6 +47,10 @@ export function parseExploreParams(input: URLSearchParams | string | Record<stri
   const sectionTypeId = readFirstValidValue<string>(params, ["sectionType", "sectionTypeId"], validSectionIds);
   const industryId = readFirstValidValue<string>(params, ["industry", "industryId"], validIndustryIds);
   const styleId = readFirstValidValue<string>(params, ["style", "styleId"], validStyleIds);
+  const typographyId = readFirstValidValue<string>(params, ["typography", "typographyId"], validTypographyIds);
+  const colorId = readFirstValidValue<string>(params, ["color", "colorId"], validColorIds);
+  const stackId = readFirstValidValue<string>(params, ["stack", "stackId"], validStackIds);
+  const formatId = readFirstValidValue<string>(params, ["format", "formatId"], validFormatIds);
   const language = readFirstValidValue<Locale>(params, ["language", "lang"], validLanguageIds);
   const direction = readFirstValidValue<Direction>(params, ["direction", "dir"], validDirectionIds);
   const device = readFirstValidValue<Device>(params, ["device"], validDeviceIds);
@@ -54,6 +62,10 @@ export function parseExploreParams(input: URLSearchParams | string | Record<stri
   if (sectionTypeId) state.sectionTypeId = sectionTypeId;
   if (industryId) state.industryId = industryId;
   if (styleId) state.styleId = styleId;
+  if (typographyId) state.typographyId = typographyId;
+  if (colorId) state.colorId = colorId;
+  if (stackId) state.stackId = stackId;
+  if (formatId) state.formatId = formatId;
   if (language) state.language = language;
   if (direction) state.direction = direction;
   if (device) state.device = device;
@@ -69,6 +81,10 @@ export function serializeExploreParams(state: ExploreState): string {
     ["sectionType", validatedState.sectionTypeId],
     ["industry", validatedState.industryId],
     ["style", validatedState.styleId],
+    ["typography", validatedState.typographyId],
+    ["color", validatedState.colorId],
+    ["stack", validatedState.stackId],
+    ["format", validatedState.formatId],
     ["language", validatedState.language],
     ["direction", validatedState.direction],
     ["device", validatedState.device],

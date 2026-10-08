@@ -5,6 +5,10 @@ export interface SearchRequest {
   sectionTypeId?: string;
   industryId?: string;
   styleId?: string;
+  typographyId?: string;
+  colorId?: string;
+  stackId?: string;
+  formatId?: string;
   language?: Locale;
   direction?: Direction;
   device?: Device;
@@ -34,7 +38,7 @@ export interface SectionService {
   getSimilar(id: ID, limit?: number): Promise<Section[]>;
 }
 
-export type SearchSuggestionKind = "sectionType" | "industry" | "style" | "source";
+export type SearchSuggestionKind = "sectionType" | "industry" | "style" | "typography" | "color" | "stack" | "source";
 
 export interface SearchSuggestion {
   kind: SearchSuggestionKind;

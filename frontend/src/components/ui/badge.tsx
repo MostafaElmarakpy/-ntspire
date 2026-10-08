@@ -1,47 +1,55 @@
 import * as React from "react"
-import { cva, type VariantProps } from "class-variance-authority"
+import { Badge as HeroUIBadge } from "@heroui/react/badge"
 import { cn } from "cn"
-import { Slot } from "radix-ui"
 
-const badgeVariants = cva(
-  "inline-flex w-fit shrink-0 items-center justify-center gap-1 overflow-hidden rounded-full border border-transparent px-2 py-0.5 text-xs font-medium whitespace-nowrap transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&>svg]:pointer-events-none [&>svg]:size-3",
+type BadgeVariant = "default" | "secondary" | "destructive" | "outline" | "ghost" | "link"
+
+/**
+ * Pill badge on the HeroUI Badge primitive (which already renders
+ * `data-slot="badge"`). Brand tokens stay authoritative: the HeroUI
+ * variant/color picks the closest structure and our classes carry the palette.
+ *
+ * HeroUI Badge has no `asChild` — verified zero `asChild` call sites, so the
+ * prop was dropped instead of faked.
+ */
+const badgeSkin: Record<
+  BadgeVariant,
   {
-    variants: {
-      variant: {
-        default: "bg-primary text-primary-foreground [a&]:hover:bg-primary/90",
-        secondary:
-          "bg-secondary text-secondary-foreground [a&]:hover:bg-secondary/90",
-        destructive:
-          "bg-destructive text-white focus-visible:ring-destructive/20 dark:bg-destructive/60 dark:focus-visible:ring-destructive/40 [a&]:hover:bg-destructive/90",
-        outline:
-          "border-border text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
-        ghost: "[a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
-        link: "text-primary underline-offset-4 [a&]:hover:underline",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
-    },
+    variant: "primary" | "secondary" | "soft"
+    color?: "default" | "accent" | "danger" | "success" | "warning"
+    className: string
   }
-)
+> = {
+  default: { variant: "primary", color: undefined, className: "bg-primary text-primary-foreground" },
+  secondary: { variant: "secondary", color: undefined, className: "bg-secondary text-secondary-foreground" },
+  destructive: { variant: "primary", color: "danger", className: "bg-destructive text-white" },
+  outline: { variant: "secondary", color: undefined, className: "border-border text-foreground" },
+  ghost: { variant: "secondary", color: undefined, className: "text-foreground" },
+  link: { variant: "secondary", color: undefined, className: "text-primary underline-offset-4" },
+}
 
 function Badge({
   className,
   variant = "default",
-  asChild = false,
   ...props
-}: React.ComponentProps<"span"> &
-  VariantProps<typeof badgeVariants> & { asChild?: boolean }) {
-  const Comp = asChild ? Slot.Root : "span"
+}: Omit<React.ComponentProps<"span">, "color"> & { variant?: BadgeVariant }) {
+  const skin = badgeSkin[variant]
 
   return (
-    <Comp
-      data-slot="badge"
+    <HeroUIBadge
       data-variant={variant}
-      className={cn(badgeVariants({ variant }), className)}
+      variant={skin.variant}
+      color={skin.color}
+      className={cn(
+        // Our badges are inline text pills, never anchored dots: neutralize
+        // HeroUI's default absolute corner placement (no static option exists).
+        "static w-fit rounded-full border border-transparent px-2 py-0.5 text-xs font-medium whitespace-nowrap [transform:none]",
+        skin.className,
+        className
+      )}
       {...props}
     />
   )
 }
 
-export { Badge, badgeVariants }
+export { Badge }

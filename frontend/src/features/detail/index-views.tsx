@@ -76,7 +76,7 @@ export function CategoriesIndex({ locale, data }: { locale: SupportedLocale; dat
     <div className="space-y-12">
       {data.groups.map((group) => (
         <section key={group.id} aria-label={group.title} className="space-y-4">
-          <h2 className="font-serif text-2xl">{group.title}</h2>
+          <h2 className="text-base font-semibold tracking-[-0.01em]">{group.title}</h2>
           <ul className="flex flex-wrap gap-2">
             {group.entries.map((entry) => (
               <li key={entry.id}>

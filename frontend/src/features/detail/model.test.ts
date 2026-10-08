@@ -366,15 +366,25 @@ describe("index builders", () => {
   it("links each entry into Explore with that one filter, and every group covers the whole taxonomy", () => {
     const data = buildCategoriesIndex("en");
     const industries = data.groups.find((group) => group.id === "industries")!;
-    expect(industries.entries).toHaveLength(12);
+    expect(industries.entries).toHaveLength(16);
     expect(data.groups.find((group) => group.id === "sectionTypes")!.entries).toHaveLength(21);
     expect(data.groups.find((group) => group.id === "styles")!.entries).toHaveLength(11);
+    expect(data.groups.find((group) => group.id === "typographies")!.entries).toHaveLength(4);
+    expect(data.groups.find((group) => group.id === "colors")!.entries).toHaveLength(7);
+    expect(data.groups.find((group) => group.id === "stacks")!.entries).toHaveLength(8);
+    expect(data.groups.find((group) => group.id === "formats")!.entries).toHaveLength(2);
 
     expect(industries.entries.find((entry) => entry.id === "saas")!.href).toBe("/en/explore?industry=saas");
     expect(data.groups.find((group) => group.id === "sectionTypes")!.entries.find((entry) => entry.id === "hero")!.href)
       .toBe("/en/explore?sectionType=hero");
     expect(data.groups.find((group) => group.id === "styles")!.entries.find((entry) => entry.id === "dark")!.href)
       .toBe("/en/explore?style=dark");
+    expect(data.groups.find((group) => group.id === "typographies")!.entries.find((entry) => entry.id === "serif")!.href)
+      .toBe("/en/explore?typography=serif");
+    expect(data.groups.find((group) => group.id === "stacks")!.entries.find((entry) => entry.id === "react")!.href)
+      .toBe("/en/explore?stack=react");
+    expect(data.groups.find((group) => group.id === "formats")!.entries.find((entry) => entry.id === "og-image")!.href)
+      .toBe("/en/explore?format=og-image");
   });
 
   it("empties to no entries at all", () => {

@@ -200,12 +200,18 @@ Do not introduce Redux or another global state library unless a concrete need is
 ## Phase 03 Design System and Shell
 
 The light-only interface uses semantic CSS variables in `frontend/src/app/globals.css`.
-The palette pairs evergreen ink (`--primary`) with a high-visibility leaf signal
-(`--accent`) on a cool paper surface. Type uses a local editorial serif stack
-for display headings and a local sans stack for UI/body copy; no remote font or
-asset request is required. Spacing follows a compact 4px-based scale, controls
-use an 8px maximum radius, and `--masonry-gap` is the shared future gallery-gap
-token. Focus treatment and reduced-motion behavior are global.
+The monochrome gallery palette pairs near-black ink (`--primary: #111111`) with
+neutral washes on a warm near-white surface (`--background: #fafafa`, cards
+`#ffffff`, hairlines `#ececec`); running meta text uses a darker gray
+(`--muted-foreground: #6e6e6e`) because the spec's `#8a8a8a` falls below the
+axe 4.5:1 gate at small sizes and survives only as `--muted-faint` for
+large/decorative text. Type is a single self-hosted OFL Inter variable face
+for everything — no remote font or asset request is required. Body copy is
+15px/1.5 with antialiased rendering. Spacing follows a compact 4px-based
+scale, cards use a 12px radius (`--radius-card`) with hairline borders or an
+ultra-soft shadow (`--shadow-soft`), controls stay 8px, and `--masonry-gap`
+is the shared gallery-gap token (20px narrow, 24px base, 32px very wide).
+Focus treatment and reduced-motion behavior are global.
 
 `AppShell` wraps supported locale routes with a skip link, responsive header,
 main landmark, and footer. Navigation entries declare route availability in
@@ -312,6 +318,97 @@ navigation from Explore and reuses the same `SectionDetail` as the standalone
 route. Adjacent results come from the current Explore query through
 `mockSearchService.search()`. Cold/direct section URLs remain standalone; Quick
 View is an independent image-only dialog. No taxonomy dimensions were added.
+
+## Figma / recent.design reimagining (WS1–WS7)
+
+The Explore feed, header, cards, and Sources landing follow the Figma
+`ntspire` file (screens Desktop 1–3, Sidebar frame, Button/Avatar/Logo
+components) and recent.design feed behavior, within the phase guards below.
+
+### Extended taxonomy dimensions
+
+Beyond Section Type, Industry, and Style, the taxonomy now carries
+**Typography** (`TYPOGRAPHIES`: serif/sans/mono/display), **Color** (`COLORS`:
+neutral/blue/green/violet/orange/rose/monochrome), **Stack** (`STACKS`:
+react/nextjs/tailwind/vue/svelte/webflow/wordpress/framer), and **Format**
+(`FORMATS`: section/og-image). Industries grew to 16 (retail, transport,
+entertainment, technology added; "Food & Drink" and "Travel & Tourism" are
+aliases of food/travel).
+
+Sections carry required `typographyId`, `colorId`, `stackId`, `formatId`.
+Typography/color derive deterministically from style
+(`TYPOGRAPHY_BY_STYLE`, `COLOR_BY_STYLE` in fixtures, like `SECTION_HEIGHTS`);
+stack derives per source (`STACK_BY_SOURCE`); heroes are `og-image` format.
+Facets, filters, URL params (`typography`, `color`, `stack`, `format`),
+search inference (ranked after the original dimensions, so existing
+resolutions never change), suggestions, overlay detected filters, the sidebar,
+and the categories index all read the same config. The pill row and every chip
+render only when live facets show data behind them (spec §14.2 rule holds).
+
+### Header
+
+Borderless D2-style shell: exported Figma logo SVG (`public/brand/`,
+`Wordmark` renders it with `priority`), Browse/Resources nav groups
+(`BROWSE_NAV`, `RESOURCE_NAV` in `navigation.ts` — only real, available
+routes), a centered search pill (`HeaderSearchPill`, client leaf) opening the
+Phase 06 overlay in controlled mode and owning the `/` + ⌘K shortcuts, and
+icon actions (compact search on mobile, avatar `SignInDialog`, mobile menu).
+The Figma `+`/bookmark actions are deferred: no submission/collections routes
+exist behind them, and the header never links to a dead end.
+
+### Cards and buttons
+
+The icon-button primitive (`overlay` variant + `icon-overlay` size) matches
+the Figma Button component: 32px box, 10px radius, translucent card fill,
+hairline border, 16px lucide icon. Card overlays (Save, Quick View) and header
+icon actions use it. SectionCard keeps its 07b structure minus the caption
+(top-left source monogram per the Figma geometry, hover/touch overlays with
+Save + Open); the caption was removed so cards are image-only.
+
+### Explore feed and Sources landing
+
+Explore's content column carries a horizontally scrollable quick-pill row
+(`ExploreQuickPills`, curated in `EXPLORE_QUICK_PILLS`, facet-gated, same
+toggle contract as the sidebar) above the existing chips, count, sort pill,
+and `MasonryGrid` — ranking, placement, and breakpoints unchanged. The sidebar
+matches the Figma Sidebar frame: Discover and every filter render as plain
+text rows (no pills), counts are zero-padded figures with natural-number
+accessible names, the desktop column is 280px, and the frame's bottom sponsor
+block (mailto pills + copyright) closes the sidebar itself rather than a
+separate slot beside it. The Sources index opens with the D3 hero panel
+(`HeroPanel`, condensed display type) followed by sources, a sponsor slot, and
+a static jobs teaser (local rows, mailto actions only — no hiring backend).
+
+### Brand type
+
+Display type is the same self-hosted OFL Inter variable
+(`public/fonts/`, `--font-body` → `font-sans` utility) as everything else: one
+family across body, headings, hero, and wordmark-adjacent text, in the
+recent.design gallery spirit. The trial brand fonts (Greed, Exposure) and the
+earlier Oswald/serif display faces cannot ship. No remote font or asset request exists.
+
+## HeroUI adoption (pilot + expand)
+
+`@heroui/react@3.2.6` (v3 line: Tailwind-v4/React-19 rewrite) is installed with
+per-component CSS imports only — never the full bundle. The shared token
+bridge (`themes/shared/theme.css` + utilities) plus the default variables feed
+HeroUI semantics; our unlayered `:root` tokens win every collision, so the
+brand palette and radius scale stay authoritative, with explicit bridges for
+`--surface/--overlay` (→ card/popover) and `--field-radius` (→ 8px). One known
+collision is fenced, not renamed: HeroUI reads `--muted` as secondary *text*
+while ours is a surface tint, so `.tabs__tab` re-points it at
+`--muted-foreground` in that scope.
+
+Swapped: FilterChip→Chip, ui/skeleton→Skeleton, Sheets→Drawer (compound
+Root/Trigger/Content/Dialog/Header/Body/Footer, placements right/bottom),
+Badge, Input (search combobox internals untouched), Tabs, Select (both demo
+only), Tooltip reverted (HeroUI forces a nesting wrapper). Kept custom:
+Button (cva variants incl. Figma `overlay` spec + Radix `asChild` SPA links),
+Breadcrumb (SPA links), Toggle/ToggleGroup (`radiogroup` contract),
+SaveButton logic, masonry, search-overlay internals, sonner. Rule: a HeroUI
+primitive must preserve the asserted aria/i18n/routing contract or it stays
+out (BUG-017 trigger-less Root, BUG-018 badge placement, BUG-019
+breadcrumbs/tooltip/tabs-muted). Every drawer Root owns a `Drawer.Trigger`.
 
 ## Future Integration Boundary
 

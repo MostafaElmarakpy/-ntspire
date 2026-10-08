@@ -8,11 +8,11 @@ import { t } from "@/i18n/messages";
 import type { SupportedLocale } from "@/i18n/config";
 
 const palette = [
-  { label: "design.paletteForest", value: "var(--primary)" },
-  { label: "design.paletteLeaf", value: "var(--secondary)" },
-  { label: "design.paletteSignal", value: "var(--accent)" },
+  { label: "design.paletteInk", value: "var(--primary)" },
   { label: "design.palettePaper", value: "var(--background)" },
-  { label: "design.paletteInk", value: "var(--foreground)" },
+  { label: "design.paletteCard", value: "var(--card)" },
+  { label: "design.paletteFog", value: "var(--secondary)" },
+  { label: "design.paletteWash", value: "var(--accent)" },
 ] as const;
 
 export function DesignSystemPreview({ locale }: { locale: SupportedLocale }) {
@@ -21,7 +21,7 @@ export function DesignSystemPreview({ locale }: { locale: SupportedLocale }) {
       <PageHeader title={t(locale, "design.title")} eyebrow={t(locale, "design.eyebrow")} description={t(locale, "design.description")} />
       <section aria-labelledby="palette-heading" className="grid gap-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
-          <h2 id="palette-heading" className="font-serif text-2xl">{t(locale, "design.colors")}</h2>
+          <h2 id="palette-heading" className="text-base font-semibold tracking-[-0.01em]">{t(locale, "design.colors")}</h2>
           <Badge variant="secondary">{t(locale, "design.badgeLabel")}</Badge>
         </div>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
@@ -42,7 +42,7 @@ export function DesignSystemPreview({ locale }: { locale: SupportedLocale }) {
       </section>
       <DesignSystemControls locale={locale} />
       <section aria-labelledby="states-heading" className="grid gap-6">
-        <h2 id="states-heading" className="font-serif text-2xl">{t(locale, "design.states")}</h2>
+        <h2 id="states-heading" className="text-base font-semibold tracking-[-0.01em]">{t(locale, "design.states")}</h2>
         <div className="grid gap-6 lg:grid-cols-2">
           <EmptyState title={t(locale, "ui.emptyTitle")} description={t(locale, "ui.emptyDescription")} />
           <ErrorState title={t(locale, "ui.errorTitle")} description={t(locale, "ui.errorDescription")} retryLabel={t(locale, "ui.retry")} />
@@ -54,7 +54,7 @@ export function DesignSystemPreview({ locale }: { locale: SupportedLocale }) {
         </div>
       </section>
       <section aria-labelledby="navigation-heading" className="border-t border-border pt-7">
-        <h2 id="navigation-heading" className="font-serif text-2xl">{t(locale, "design.navigation")}</h2>
+        <h2 id="navigation-heading" className="text-base font-semibold tracking-[-0.01em]">{t(locale, "design.navigation")}</h2>
         <p className="mt-3 max-w-2xl text-sm text-muted-foreground">{t(locale, "design.description")}</p>
       </section>
     </div>

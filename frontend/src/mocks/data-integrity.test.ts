@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { DEVICES, DIRECTIONS, INDUSTRIES, SECTION_TYPES, STYLES, QUICK_FILTER_CHIPS } from "@/config/taxonomy";
+import { COLORS, DEVICES, DIRECTIONS, FORMATS, INDUSTRIES, SECTION_TYPES, STACKS, STYLES, QUICK_FILTER_CHIPS, TYPOGRAPHIES } from "@/config/taxonomy";
 import { MOCK_ASSETS, MOCK_CATEGORIES, MOCK_FIXTURE, MOCK_SECTION_CROPS, MOCK_SECTIONS } from "@/mocks/fixtures";
 
 const assetDirectory = path.join(process.cwd(), "public", "mock-assets");
@@ -35,6 +35,10 @@ describe("Phase 02 mock data integrity", () => {
       expect(SECTION_TYPES.some((entry) => entry.id === section.sectionTypeId)).toBe(true);
       expect(INDUSTRIES.some((entry) => entry.id === section.industryId)).toBe(true);
       expect(STYLES.some((entry) => entry.id === section.styleId)).toBe(true);
+      expect(TYPOGRAPHIES.some((entry) => entry.id === section.typographyId)).toBe(true);
+      expect(COLORS.some((entry) => entry.id === section.colorId)).toBe(true);
+      expect(STACKS.some((entry) => entry.id === section.stackId)).toBe(true);
+      expect(FORMATS.some((entry) => entry.id === section.formatId)).toBe(true);
       expect(DIRECTIONS.some((entry) => entry.id === section.direction)).toBe(true);
     }
   });
@@ -52,8 +56,12 @@ describe("Phase 02 mock data integrity", () => {
 
   it("keeps every quick filter backed by a real taxonomy value", () => {
     expect(SECTION_TYPES).toHaveLength(21);
-    expect(INDUSTRIES).toHaveLength(12);
+    expect(INDUSTRIES).toHaveLength(16);
     expect(STYLES).toHaveLength(11);
+    expect(TYPOGRAPHIES).toHaveLength(4);
+    expect(COLORS).toHaveLength(7);
+    expect(STACKS).toHaveLength(8);
+    expect(FORMATS).toHaveLength(2);
     expect(INDUSTRIES.find((entry) => entry.id === "ecommerce")?.aliases.en).toContain("ecommerce");
     for (const chip of QUICK_FILTER_CHIPS) {
       if (chip.type === "language") expect(["en", "ar"]).toContain(chip.value);
