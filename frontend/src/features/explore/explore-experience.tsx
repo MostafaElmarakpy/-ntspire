@@ -216,7 +216,7 @@ export function ExploreExperience({ locale, state, initialData, initialError }: 
   const detailHref = (sectionId: string) => `/${locale}/sections/${sectionId}${exploreQuery ? `?${exploreQuery}` : ""}`;
 
   return (
-    <div className="-mx-6 -my-16 space-y-8 px-6 py-6 sm:-my-24 sm:py-8 lg:-mx-10 lg:px-10">
+    <div className="-mx-5 -my-16 space-y-8 px-5 py-6 sm:-mx-8 sm:-my-24 sm:px-8 sm:py-8 lg:-mx-12 lg:px-12">
       {/*
         The visible "Explore references" header was replaced by the sidebar's
         Discover section. The heading stays in the document, visually hidden, so
